@@ -1,0 +1,29 @@
+2026-07-24 18:41:00,704 INFO radiuslog [main] Initializing Radius Server
+2026-07-24 18:41:13,065 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-07-24 18:41:13,065 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-07-24 18:41:14,603 INFO radiuslog [main] *** Radius Server Started Successfully ***
+2026-07-24 18:41:32,585 INFO radiuslog [main] Initializing Radius Server
+2026-07-24 18:41:41,195 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-07-24 18:41:41,197 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-07-24 18:41:42,233 INFO radiuslog [main] *** Radius Server Started Successfully ***
+2026-07-24 18:41:42,359 INFO radiuslog [AUTHPOOL-0] [akash.gaur][126][1784898702356][AUTH THREAD]Started...
+2026-07-24 18:41:42,359 INFO radiuslog [AUTHPOOL-0] [akash.gaur][126][1784898702356][AUTH THREAD]received packet from /172.19.199.104:58008 on local address 0.0.0.0/0.0.0.0:2812: Access-Request, ID 126
+Message-Authenticator: 0x2be804e6c6b24b9f1754fc03f9823567
+User-Password: 0x616b6173682e67617572
+User-Name: akash.gaur
+2026-07-24 18:41:48,037 INFO radiuslog [AUTHPOOL-0] [akash.gaur][126][1784898702401][RADAUTHIMPL]Authentication Status:false
+2026-07-24 18:41:48,042 INFO radiuslog [AUTHPOOL-0] RadiusAuthAuditPool Initialized: min:10,Max:50
+2026-07-24 18:41:48,043 INFO radiuslog [AUTHPOOL-0] [akash.gaur][126][1784898702401][RADAUTHIMPL]AUTH Time to Final Respond:5642
+2026-07-24 18:41:48,043 INFO radiuslog [AUTHPOOL-0] [akash.gaur][126][1784898702356][AUTH THREAD]send response: Access-Accept, ID 126
+Class: 4a8daaf6f969cc8ec993e96b053aee56
+2026-07-24 18:41:48,044 INFO radiuslog [AUTHPOOL-0] [akash.gaur][126][1784898702356][AUTH THREAD]Ended. Time to Final Respond:5689
+2026-07-24 18:41:52,771 INFO radiuslog [AUTHPOOL-1] [akash.gaur][14][1784898712770][AUTH THREAD]Started...
+2026-07-24 18:41:52,772 INFO radiuslog [AUTHPOOL-1] [akash.gaur][14][1784898712770][AUTH THREAD]received packet from /172.19.199.104:42907 on local address 0.0.0.0/0.0.0.0:2812: Access-Request, ID 14
+Message-Authenticator: 0x1696802ea1fb5221beac27aa28ea484f
+User-Password: 0x616b6173682e67617572
+User-Name: akash.gaur
+2026-07-24 18:41:52,892 INFO radiuslog [AUTHPOOL-1] [akash.gaur][14][1784898712772][RADAUTHIMPL]Authentication Status:false
+2026-07-24 18:41:52,895 INFO radiuslog [AUTHPOOL-1] [akash.gaur][14][1784898712772][RADAUTHIMPL]AUTH Time to Final Respond:123
+2026-07-24 18:41:52,896 INFO radiuslog [AUTHPOOL-1] [akash.gaur][14][1784898712770][AUTH THREAD]send response: Access-Accept, ID 14
+Class: 4a8daaf6f969cc8ec993e96b053aee56
+2026-07-24 18:41:52,896 INFO radiuslog [AUTHPOOL-1] [akash.gaur][14][1784898712770][AUTH THREAD]Ended. Time to Final Respond:126

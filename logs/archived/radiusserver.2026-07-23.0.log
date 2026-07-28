@@ -1,0 +1,58 @@
+2026-07-23 18:30:16,446 INFO radiuslog [main] Initializing Radius Server
+2026-07-23 18:30:20,749 ERROR radiuslog [main] Error in CacheCOnfiguration Constructor:com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Access denied for user 'root'@'localhost' (using password: YES)
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Access denied for user 'root'@'localhost' (using password: YES)
+	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:595)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:581)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:115)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:81)
+	at com.radiusengine.aaa.db.DataSource.setupDataSource(DataSource.java:26)
+	at com.radiusengine.aaa.server.CachingConfigurations.<init>(CachingConfigurations.java:107)
+	at com.radiusengine.aaa.server.CachingConfigurations.getInstance(CachingConfigurations.java:649)
+	at com.radiusengine.aaa.server.RadiusAAAServer.startServer(RadiusAAAServer.java:61)
+	at com.radiusengine.aaa.server.RadiusAAAServer.main(RadiusAAAServer.java:43)
+Caused by: java.sql.SQLException: Access denied for user 'root'@'localhost' (using password: YES)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:129)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:97)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:836)
+	at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:456)
+	at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:246)
+	at com.mysql.cj.jdbc.NonRegisteringDriver.connect(NonRegisteringDriver.java:197)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:358)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:206)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:477)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:560)
+	... 7 common frames omitted
+2026-07-23 18:30:20,773 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-07-23 18:30:20,773 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-07-23 18:30:22,104 INFO radiuslog [main] *** Radius Server Started Successfully ***
+2026-07-23 18:31:52,074 INFO radiuslog [main] Initializing Radius Server
+2026-07-23 18:31:56,033 ERROR radiuslog [main] Error in CacheCOnfiguration Constructor:com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Access denied for user 'root'@'localhost' (using password: YES)
+com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Access denied for user 'root'@'localhost' (using password: YES)
+	at com.zaxxer.hikari.pool.HikariPool.throwPoolInitializationException(HikariPool.java:595)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:581)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:115)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:81)
+	at com.radiusengine.aaa.db.DataSource.setupDataSource(DataSource.java:26)
+	at com.radiusengine.aaa.server.CachingConfigurations.<init>(CachingConfigurations.java:107)
+	at com.radiusengine.aaa.server.CachingConfigurations.getInstance(CachingConfigurations.java:649)
+	at com.radiusengine.aaa.server.RadiusAAAServer.startServer(RadiusAAAServer.java:61)
+	at com.radiusengine.aaa.server.RadiusAAAServer.main(RadiusAAAServer.java:43)
+Caused by: java.sql.SQLException: Access denied for user 'root'@'localhost' (using password: YES)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:129)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:97)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:836)
+	at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:456)
+	at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:246)
+	at com.mysql.cj.jdbc.NonRegisteringDriver.connect(NonRegisteringDriver.java:197)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:138)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:358)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:206)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:477)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:560)
+	... 7 common frames omitted
+2026-07-23 18:31:56,058 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-07-23 18:31:56,060 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-07-23 18:31:57,443 INFO radiuslog [main] *** Radius Server Started Successfully ***

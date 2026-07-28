@@ -1,0 +1,28 @@
+2026-06-09 16:43:54,596 INFO radiuslog [main] Initializing Radius Server
+2026-06-09 16:43:59,764 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-06-09 16:43:59,764 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-06-09 16:44:01,480 INFO radiuslog [main] *** Radius Server Started Successfully ***
+2026-06-09 16:48:26,937 INFO radiuslog [AUTHPOOL-0] [akash][204][1781003906936][AUTH THREAD]Started...
+2026-06-09 16:48:26,938 INFO radiuslog [AUTHPOOL-0] [akash][204][1781003906936][AUTH THREAD]received packet from /172.19.199.104:56182 on local address 0.0.0.0/0.0.0.0:2812: Access-Request, ID 204
+Message-Authenticator: 0x26cebce8874eb75a609584b8cf650712
+User-Password: 0x4722efbfbdefbfbd2416efbfbd2cefbfbdefbfbd033befbfbd06efbfbdefbfbd
+User-Name: akash
+2026-06-09 16:48:31,230 INFO radiuslog [AUTHPOOL-0] [akash][204][1781003906966][RADAUTHIMPL]Authentication Status:false
+2026-06-09 16:48:31,230 INFO radiuslog [AUTHPOOL-0] RadiusAuthAuditPool Initialized: min:10,Max:50
+2026-06-09 16:48:31,230 INFO radiuslog [AUTHPOOL-0] [akash][204][1781003906966][RADAUTHIMPL]AUTH Time to Final Respond:4263
+2026-06-09 16:48:31,230 INFO radiuslog [AUTHPOOL-0] [akash][204][1781003906936][AUTH THREAD]send response: Access-Reject, ID 204
+2026-06-09 16:48:31,235 INFO radiuslog [AUTHPOOL-0] [akash][204][1781003906936][AUTH THREAD]Ended. Time to Final Respond:4299
+2026-06-09 18:12:01,689 INFO radiuslog [main] Initializing Radius Server
+2026-06-09 18:12:07,149 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-06-09 18:12:07,149 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-06-09 18:12:09,188 INFO radiuslog [main] *** Radius Server Started Successfully ***
+2026-06-09 18:13:03,840 INFO radiuslog [AUTHPOOL-0] [akash][210][1781008983840][AUTH THREAD]Started...
+2026-06-09 18:13:03,848 INFO radiuslog [AUTHPOOL-0] [akash][210][1781008983840][AUTH THREAD]received packet from /172.19.199.104:45098 on local address 0.0.0.0/0.0.0.0:2812: Access-Request, ID 210
+Message-Authenticator: 0xc091f11b373eb8898e24c076a7591fb9
+User-Password: 0xefbfbd44efbfbdefbfbdefbfbdefbfbd7aefbfbdefbfbd4aefbfbd35efbfbd1defbfbd28
+User-Name: akash
+2026-06-09 18:13:07,233 INFO radiuslog [AUTHPOOL-0] [akash][210][1781008983872][RADAUTHIMPL]Authentication Status:false
+2026-06-09 18:13:07,233 INFO radiuslog [AUTHPOOL-0] RadiusAuthAuditPool Initialized: min:10,Max:50
+2026-06-09 18:13:07,233 INFO radiuslog [AUTHPOOL-0] [akash][210][1781008983872][RADAUTHIMPL]AUTH Time to Final Respond:3361
+2026-06-09 18:13:07,233 INFO radiuslog [AUTHPOOL-0] [akash][210][1781008983840][AUTH THREAD]send response: Access-Reject, ID 210
+2026-06-09 18:13:07,233 INFO radiuslog [AUTHPOOL-0] [akash][210][1781008983840][AUTH THREAD]Ended. Time to Final Respond:3393

@@ -1,0 +1,85 @@
+2026-07-27 11:29:10,696 INFO radiuslog [main] Initializing Radius Server
+2026-07-27 11:29:22,987 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-07-27 11:29:22,987 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-07-27 11:29:24,764 INFO radiuslog [main] *** Radius Server Started Successfully ***
+2026-07-27 12:19:13,642 INFO radiuslog [AUTHPOOL-0] [pavan1][99][1785134953642][AUTH THREAD]Started...
+2026-07-27 12:19:13,642 INFO radiuslog [AUTHPOOL-0] [pavan1][99][1785134953642][AUTH THREAD]received packet from /172.19.199.104:60271 on local address 0.0.0.0/0.0.0.0:2812: Access-Request, ID 99
+Message-Authenticator: 0x6635568b9c083764641ef57e26800f8f
+User-Password: 0x706176616e31
+User-Name: pavan1
+2026-07-27 12:19:34,900 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974899][AUTH THREAD]Started...
+2026-07-27 12:19:34,900 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974899][AUTH THREAD]received packet from /172.19.199.104:47091 on local address 0.0.0.0/0.0.0.0:2812: Access-Request, ID 29
+Message-Authenticator: 0x5c0f9f5d49927e6d3054604c30c63bbd
+User-Password: 0x706176616e31
+User-Name: pavan1
+2026-07-27 12:19:47,112 ERROR radiuslog [AUTHPOOL-0] [pavan1][99][1785134953703][RADAUTHIMPL][DBAuthenticationDriver]Error in GETCUSTOMER FROM DB :java.sql.SQLTransientConnectionException: HikariPool-1 - Connection is not available, request timed out after 30082ms.
+java.sql.SQLTransientConnectionException: HikariPool-1 - Connection is not available, request timed out after 30082ms.
+	at com.zaxxer.hikari.pool.HikariPool.createTimeoutException(HikariPool.java:695)
+	at com.zaxxer.hikari.pool.HikariPool.getConnection(HikariPool.java:197)
+	at com.zaxxer.hikari.pool.HikariPool.getConnection(HikariPool.java:162)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:100)
+	at com.radiusengine.aaa.db.DataSource.getConnection(DataSource.java:33)
+	at com.radiusengine.aaa.db.DBAuthenticationDriver.getDBCustomer(DBAuthenticationDriver.java:697)
+	at com.radiusengine.aaa.db.DBAuthenticationDriver.authenticateCustomer(DBAuthenticationDriver.java:297)
+	at com.radiusengine.aaa.server.RadiusAuthImpl.authenticateCustomer(RadiusAuthImpl.java:258)
+	at com.radiusengine.aaa.server.RadiusAuthImpl.processAccessRquest(RadiusAuthImpl.java:117)
+	at org.tinyradius.workers.RadiusAuthProcessor.accessRequestReceived(RadiusAuthProcessor.java:150)
+	at org.tinyradius.workers.RadiusAuthProcessor.run(RadiusAuthProcessor.java:108)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.sql.SQLNonTransientConnectionException: No operations allowed after connection closed.
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:110)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:97)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:89)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:63)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:73)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:73)
+	at com.mysql.cj.jdbc.ConnectionImpl.setNetworkTimeout(ConnectionImpl.java:2490)
+	at com.zaxxer.hikari.pool.PoolBase.setNetworkTimeout(PoolBase.java:560)
+	at com.zaxxer.hikari.pool.PoolBase.isConnectionAlive(PoolBase.java:173)
+	at com.zaxxer.hikari.pool.HikariPool.getConnection(HikariPool.java:186)
+	... 12 common frames omitted
+Caused by: com.mysql.cj.exceptions.ConnectionIsClosedException: No operations allowed after connection closed.
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:61)
+	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:105)
+	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:151)
+	at com.mysql.cj.NativeSession.checkClosed(NativeSession.java:1171)
+	at com.mysql.cj.jdbc.ConnectionImpl.checkClosed(ConnectionImpl.java:576)
+	at com.mysql.cj.jdbc.ConnectionImpl.setNetworkTimeout(ConnectionImpl.java:2486)
+	... 15 common frames omitted
+2026-07-27 12:19:50,074 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974900][RADAUTHIMPL]Authentication Status:true
+2026-07-27 12:19:50,074 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974900][RADAUTHIMPL][AUTHORIZE]VLAN CHECK FAILED: ATTRIBUTE NOT FOUND IN REQUEST:87
+2026-07-27 12:19:50,137 ERROR radiuslog [AUTHPOOL-1] [pavan1][29][1785134974900][RADAUTHIMPL][DBAuthenticationDriver]Error in populateAuthorizationDetails():java.sql.SQLSyntaxErrorException: Table 'tlrexoisp.TBLCUSTPACKAGEREL' doesn't exist
+java.sql.SQLSyntaxErrorException: Table 'tlrexoisp.TBLCUSTPACKAGEREL' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:120)
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:97)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:953)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeQuery(ClientPreparedStatement.java:1003)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeQuery(ProxyPreparedStatement.java:52)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeQuery(HikariProxyPreparedStatement.java)
+	at com.radiusengine.aaa.db.DBAuthenticationDriver.populateAuthorizationDetails(DBAuthenticationDriver.java:355)
+	at com.radiusengine.aaa.server.RadiusAuthImpl.authorizeCustomer(RadiusAuthImpl.java:309)
+	at com.radiusengine.aaa.server.RadiusAuthImpl.processAccessRquest(RadiusAuthImpl.java:180)
+	at org.tinyradius.workers.RadiusAuthProcessor.accessRequestReceived(RadiusAuthProcessor.java:150)
+	at org.tinyradius.workers.RadiusAuthProcessor.run(RadiusAuthProcessor.java:108)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+2026-07-27 12:19:50,137 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974900][RADAUTHIMPL][AUTHORIZE]basePlanExists:false
+2026-07-27 12:19:50,137 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974900][RADAUTHIMPL][AUTHORIZE]AUTHORIZATION STATUS:FAILED, REASON:Base Plan Doesn't Exist
+2026-07-27 12:19:50,137 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974900][RADAUTHIMPL]AUTHORIZATION STATUS:FAILED
+2026-07-27 12:19:50,144 INFO radiuslog [AUTHPOOL-1] RadiusAuthAuditPool Initialized: min:10,Max:50
+2026-07-27 12:19:50,146 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974900][RADAUTHIMPL]AUTH Time to Final Respond:15246
+2026-07-27 12:19:50,146 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974899][AUTH THREAD]send response: Access-Accept, ID 29
+Class: 4a8daaf6f969cc8ec993e96b053aee56
+2026-07-27 12:19:50,147 INFO radiuslog [AUTHPOOL-1] [pavan1][29][1785134974899][AUTH THREAD]Ended. Time to Final Respond:15248
+2026-07-27 12:19:52,369 INFO radiuslog [AUTHPOOL-0] [pavan1][99][1785134953703][RADAUTHIMPL]Authentication Status:false
+2026-07-27 12:19:52,370 INFO radiuslog [AUTHPOOL-0] [pavan1][99][1785134953703][RADAUTHIMPL]AUTH Time to Final Respond:38667
+2026-07-27 12:19:52,370 INFO radiuslog [AUTHPOOL-0] [pavan1][99][1785134953642][AUTH THREAD]send response: Access-Reject, ID 99
+2026-07-27 12:19:52,371 INFO radiuslog [AUTHPOOL-0] [pavan1][99][1785134953642][AUTH THREAD]Ended. Time to Final Respond:38729

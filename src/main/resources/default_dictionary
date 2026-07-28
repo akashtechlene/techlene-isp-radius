@@ -1,0 +1,1015 @@
+################################################
+# Attributes
+################################################
+
+ATTRIBUTE	User-Name		1	string
+ATTRIBUTE	User-Password		2	octets
+ATTRIBUTE	CHAP-Password		3	octets
+ATTRIBUTE	NAS-IP-Address		4	ipaddr
+ATTRIBUTE	NAS-Port		5	integer
+ATTRIBUTE	Service-Type		6	integer
+ATTRIBUTE	Framed-Protocol		7	integer
+ATTRIBUTE	Framed-IP-Address	8	ipaddr
+ATTRIBUTE	Framed-IP-Netmask	9	ipaddr
+ATTRIBUTE	Framed-Routing		10	integer
+ATTRIBUTE	Filter-Id		11	string
+ATTRIBUTE	Framed-MTU		12	integer
+ATTRIBUTE	Framed-Compression	13	integer
+ATTRIBUTE	Login-IP-Host		14	ipaddr
+ATTRIBUTE	Login-Service		15	integer
+ATTRIBUTE	Login-TCP-Port		16	integer
+ATTRIBUTE	Reply-Message		18	string
+ATTRIBUTE	Callback-Number		19	string
+ATTRIBUTE	Callback-Id		20	string
+ATTRIBUTE	Framed-Route		22	string
+ATTRIBUTE	Framed-IPX-Network	23	ipaddr
+ATTRIBUTE	State			24	octets
+ATTRIBUTE	Class			25	string
+ATTRIBUTE	Vendor-Specific		26	octets
+ATTRIBUTE	Session-Timeout		27	integer
+ATTRIBUTE	Idle-Timeout		28	integer
+ATTRIBUTE	Termination-Action	29	integer
+ATTRIBUTE	Called-Station-Id	30	string
+ATTRIBUTE	Calling-Station-Id	31	string
+ATTRIBUTE	NAS-Identifier		32	string
+ATTRIBUTE	Proxy-State		33	octets
+ATTRIBUTE	Login-LAT-Service	34	string
+ATTRIBUTE	Login-LAT-Node		35	string
+ATTRIBUTE	Login-LAT-Group		36	octets
+ATTRIBUTE	Framed-AppleTalk-Link	37	integer
+ATTRIBUTE	Framed-AppleTalk-Network 38	integer
+ATTRIBUTE	Framed-AppleTalk-Zone	39	string
+ATTRIBUTE	Acct-Status-Type	40	integer
+ATTRIBUTE	Acct-Delay-Time		41	integer
+ATTRIBUTE	Acct-Input-Octets	42	long
+ATTRIBUTE	Acct-Output-Octets	43	long
+ATTRIBUTE	Acct-Session-Id		44	string
+ATTRIBUTE	Acct-Authentic		45	integer
+ATTRIBUTE	Acct-Session-Time	46	integer
+ATTRIBUTE   Acct-Input-Packets	47	integer
+ATTRIBUTE   Acct-Output-Packets	48	integer
+ATTRIBUTE	Acct-Terminate-Cause	49	integer
+ATTRIBUTE	Acct-Multi-Session-Id	50	string
+ATTRIBUTE	Acct-Link-Count		51	integer
+ATTRIBUTE	Acct-Input-Gigawords    52      integer
+ATTRIBUTE	Acct-Output-Gigawords   53      integer
+ATTRIBUTE	Event-Timestamp         55      date
+ATTRIBUTE	CHAP-Challenge		60	octets
+ATTRIBUTE	NAS-Port-Type		61	integer
+ATTRIBUTE	Port-Limit		62	integer
+ATTRIBUTE	Login-LAT-Port		63	integer
+ATTRIBUTE	Acct-Tunnel-Connection	68	string
+ATTRIBUTE	ARAP-Password           70      string
+ATTRIBUTE	ARAP-Features           71      string
+ATTRIBUTE	ARAP-Zone-Access        72      integer
+ATTRIBUTE	ARAP-Security           73      integer
+ATTRIBUTE	ARAP-Security-Data      74      string
+ATTRIBUTE	Password-Retry          75      integer
+ATTRIBUTE	Prompt                  76      integer
+ATTRIBUTE	Connect-Info		77	string
+ATTRIBUTE	Configuration-Token	78	string
+ATTRIBUTE	EAP-Message		79	octets
+ATTRIBUTE	Message-Authenticator	80	octets
+ATTRIBUTE	ARAP-Challenge-Response	84	string
+ATTRIBUTE	Acct-Interim-Interval   85      integer
+ATTRIBUTE	NAS-Port-Id		87	string
+ATTRIBUTE	Framed-Pool		88	string
+ATTRIBUTE	NAS-IPv6-Address	95	octets
+ATTRIBUTE	Framed-Interface-Id	96	octets
+ATTRIBUTE   Framed-IPv6-Prefix  97  octets
+ATTRIBUTE	Login-IPv6-Host		98	octets
+ATTRIBUTE	Framed-IPv6-Route	99	string
+ATTRIBUTE	Framed-IPv6-Pool	100	string
+ATTRIBUTE	Digest-Response		206	string
+ATTRIBUTE	Digest-Attributes	207	octets
+ATTRIBUTE       Delegated-IPv6-Prefix   123     octets
+ATTRIBUTE       Framed-IPv6-Address     168     octets
+ATTRIBUTE       DNS-Server-IPv6-Address 169     octets
+ATTRIBUTE       Route-IPv6-Information  170     octets
+ATTRIBUTE       Delegated-IPv6-Prefix-Pool 171  string
+ATTRIBUTE       Stateful-IPv6-Address-Pool 172  string
+
+
+################################################
+# Attribute values
+################################################
+
+#	User Types
+
+VALUE		Service-Type		Login-User		1
+VALUE		Service-Type		Framed-User		2
+VALUE		Service-Type		Callback-Login-User	3
+VALUE		Service-Type		Callback-Framed-User	4
+VALUE		Service-Type		Outbound-User		5
+VALUE		Service-Type		Administrative-User	6
+VALUE		Service-Type		NAS-Prompt-User		7
+VALUE		Service-Type		Authenticate-Only	8
+VALUE		Service-Type		Callback-NAS-Prompt	9
+VALUE		Service-Type		Call-Check		10
+VALUE		Service-Type		Callback-Administrative	11
+VALUE		Service-Type		Voice			12
+VALUE		Service-Type		Fax			13
+VALUE		Service-Type		Modem-Relay		14
+VALUE		Service-Type		IAPP-Register		15
+VALUE		Service-Type		IAPP-AP-Check		16
+
+#	Framed Protocols
+
+VALUE		Framed-Protocol		PPP			1
+VALUE		Framed-Protocol		SLIP			2
+VALUE		Framed-Protocol		ARAP			3
+VALUE		Framed-Protocol		Gandalf-SLML		4
+VALUE		Framed-Protocol		Xylogics-IPX-SLIP	5
+VALUE		Framed-Protocol		X.75-Synchronous	6
+VALUE		Framed-Protocol		GPRS-PDP-Context	7
+
+#	Framed Routing Values
+
+VALUE		Framed-Routing		None			0
+VALUE		Framed-Routing		Broadcast		1
+VALUE		Framed-Routing		Listen			2
+VALUE		Framed-Routing		Broadcast-Listen	3
+
+#	Framed Compression Types
+
+VALUE		Framed-Compression	None			0
+VALUE		Framed-Compression	Van-Jacobson-TCP-IP	1
+VALUE		Framed-Compression	IPX-Header-Compression	2
+VALUE		Framed-Compression	Stac-LZS		3
+
+#	Login Services
+
+VALUE		Login-Service		Telnet			0
+VALUE		Login-Service		Rlogin			1
+VALUE		Login-Service		TCP-Clear		2
+VALUE		Login-Service		PortMaster		3
+VALUE		Login-Service		LAT			4
+VALUE		Login-Service		X25-PAD			5
+VALUE		Login-Service		X25-T3POS		6
+VALUE		Login-Service		TCP-Clear-Quiet		7
+
+#	Status Types
+
+VALUE		Acct-Status-Type	Start			1
+VALUE		Acct-Status-Type	Stop			2
+VALUE		Acct-Status-Type	Interim-Update		3
+VALUE		Acct-Status-Type	Alive			3
+VALUE		Acct-Status-Type	Accounting-On		7
+VALUE		Acct-Status-Type	Accounting-Off		8
+#	RFC 2867 Additional Status-Type Values
+VALUE		Acct-Status-Type	Tunnel-Start		9
+VALUE		Acct-Status-Type	Tunnel-Stop		10
+VALUE		Acct-Status-Type	Tunnel-Reject		11
+VALUE		Acct-Status-Type	Tunnel-Link-Start	12
+VALUE		Acct-Status-Type	Tunnel-Link-Stop	13
+VALUE		Acct-Status-Type	Tunnel-Link-Reject	14
+VALUE		Acct-Status-Type	Failed			15
+
+#	Authentication Types
+
+VALUE		Acct-Authentic		RADIUS			1
+VALUE		Acct-Authentic		Local			2
+VALUE		Acct-Authentic		Remote			3
+VALUE		Acct-Authentic		Diameter		4
+
+#	Termination Options
+
+VALUE		Termination-Action	Default			0
+VALUE		Termination-Action	RADIUS-Request		1
+
+#	NAS Port Types
+
+VALUE		NAS-Port-Type		Async			0
+VALUE		NAS-Port-Type		Sync			1
+VALUE		NAS-Port-Type		ISDN			2
+VALUE		NAS-Port-Type		ISDN-V120		3
+VALUE		NAS-Port-Type		ISDN-V110		4
+VALUE		NAS-Port-Type		Virtual			5
+VALUE		NAS-Port-Type		PIAFS			6
+VALUE		NAS-Port-Type		HDLC-Clear-Channel	7
+VALUE		NAS-Port-Type		X.25			8
+VALUE		NAS-Port-Type		X.75			9
+VALUE		NAS-Port-Type		G.3-Fax			10
+VALUE		NAS-Port-Type		SDSL			11
+VALUE		NAS-Port-Type		ADSL-CAP		12
+VALUE		NAS-Port-Type		ADSL-DMT		13
+VALUE		NAS-Port-Type		IDSL			14
+VALUE		NAS-Port-Type		Ethernet		15
+VALUE		NAS-Port-Type		xDSL			16
+VALUE		NAS-Port-Type		Cable			17
+VALUE		NAS-Port-Type		Wireless-Other		18
+VALUE		NAS-Port-Type		Wireless-802.11		19
+VALUE		NAS-Port-Type		Token-Ring		20
+VALUE		NAS-Port-Type		FDDI			21
+VALUE		NAS-Port-Type		Wireless-CDMA2000	22
+VALUE		NAS-Port-Type		Wireless-UMTS		23
+VALUE		NAS-Port-Type		Wireless-1X-EV		24
+VALUE		NAS-Port-Type		IAPP			25
+
+#	Acct Terminate Causes, available in 3.3.2 and later
+
+VALUE           Acct-Terminate-Cause    User-Request            1
+VALUE           Acct-Terminate-Cause    Lost-Carrier            2
+VALUE           Acct-Terminate-Cause    Lost-Service            3
+VALUE           Acct-Terminate-Cause    Idle-Timeout            4
+VALUE           Acct-Terminate-Cause    Session-Timeout         5
+VALUE           Acct-Terminate-Cause    Admin-Reset             6
+VALUE           Acct-Terminate-Cause    Admin-Reboot            7
+VALUE           Acct-Terminate-Cause    Port-Error              8
+VALUE           Acct-Terminate-Cause    NAS-Error               9
+VALUE           Acct-Terminate-Cause    NAS-Request             10
+VALUE           Acct-Terminate-Cause    NAS-Reboot              11
+VALUE           Acct-Terminate-Cause    Port-Unneeded           12
+VALUE           Acct-Terminate-Cause    Port-Preempted          13
+VALUE           Acct-Terminate-Cause    Port-Suspended          14
+VALUE           Acct-Terminate-Cause    Service-Unavailable     15
+VALUE           Acct-Terminate-Cause    Callback                16
+VALUE           Acct-Terminate-Cause    User-Error              17
+VALUE           Acct-Terminate-Cause    Host-Request            18
+VALUE		Acct-Terminate-Cause	Supplicant-Restart	19
+VALUE		Acct-Terminate-Cause	Reauthentication-Failure 20
+VALUE		Acct-Terminate-Cause	Port-Reinit		21
+VALUE		Acct-Terminate-Cause	Port-Disabled		22
+
+#	Prompt
+
+VALUE		Prompt			No-Echo			0
+VALUE		Prompt			Echo			1
+
+#       Wi-Fi Alliance - Wireless ISP Roaming - Best Current Practices v1,
+#       Feb 2003, p 14
+#       http://www.weca.net/OpenSection/downloads/WISPr_V1.0.pdf
+
+VENDOR			14122	WISPr
+
+VENDORATTR      14122   WISPr-Location-ID             1       string
+VENDORATTR      14122   WISPr-Location-Name           2       string
+VENDORATTR      14122   WISPr-Logoff-URL              3       string
+VENDORATTR      14122   WISPr-Redirection-URL         4       string
+VENDORATTR      14122   WISPr-Bandwidth-Min-Up         5       integer
+VENDORATTR      14122   WISPr-Bandwidth-Min-Down       6       integer
+VENDORATTR      14122   WISPr-Bandwidth-Max-Up         7       integer
+VENDORATTR      14122   WISPr-Bandwidth-Max-Down       8       integer
+VENDORATTR      14122   WISPr-Session-Terminate-Time  9       string
+VENDORATTR      14122   WISPr-Session-Terminate-End-Of-Day    10      integer
+VENDORATTR      14122   WISPr-Billing-Class-Of-Service        11      string
+
+
+VENDOR			9	Cisco
+
+VENDORATTR      9   Cisco-AVPair             1       string
+VENDORATTR      9   Cisco-NAS-Port           2       string
+
+VENDOR			6527   Alcatel-Lucent-Service-Router
+
+VENDORATTR	    6527   Timetra-Access 1 integer
+VENDORATTR	    6527   Timetra-Home-Directory 2 string
+VENDORATTR	    6527   Timetra-Restrict-To-Home 3 integer
+VENDORATTR	    6527   Timetra-Profile 4 string
+VENDORATTR	    6527   Timetra-Default-Action 5 integer
+VENDORATTR	    6527   Timetra-Cmd 6 string
+VENDORATTR	    6527   Timetra-Action 7 integer
+VENDORATTR	    6527   Timetra-Exec-File 8 string
+VENDORATTR	    6527   Alc-Primary-Dns 9 string
+VENDORATTR	    6527   Alc-Secondary-Dns 10 string
+VENDORATTR	    6527   Alc-Subsc-ID-Str 11 string
+VENDORATTR	    6527   Alc-Subsc-Prof-Str 12 string
+VENDORATTR	    6527   Alc-SLA-Prof-Str 13 string
+VENDORATTR	    6527   Alc-Force-Renew 14 string
+VENDORATTR	    6527   Alc-Create-Host 15 string
+VENDORATTR	    6527   Alc-ANCP-Str 16 string
+VENDORATTR	    6527   Alc-Retail-Serv-Id 17 integer
+VENDORATTR	    6527   Alc-Default-Router 18 ipaddr
+VENDORATTR	    6527   Alc-Acct-I-Inprof-Octets-64 19 octets
+VENDORATTR	    6527   Alc-Acct-I-Outprof-Octets-64 20 octets
+VENDORATTR	    6527   Alc-Acct-O-Inprof-Octets-64 21 octets
+VENDORATTR	    6527   Alc-Acct-O-Outprof-Octets-64 22 octets
+VENDORATTR	    6527   Alc-Acct-I-Inprof-Pkts-64 23 octets
+VENDORATTR	    6527   Alc-Acct-I-Outprof-Pkts-64 24 octets
+VENDORATTR	    6527   Alc-Acct-O-Inprof-Pkts-64 25 octets
+VENDORATTR	    6527   Alc-Acct-O-Outprof-Pkts-64 26 octets
+VENDORATTR	    6527   Alc-Client-Hardware-Addr 27 string
+VENDORATTR	    6527   Alc-Int-Dest-Id-Str 28 string
+VENDORATTR	    6527   Alc-Primary-Nbns 29 ipaddr
+VENDORATTR	    6527   Alc-Secondary-Nbns 30 ipaddr
+VENDORATTR	    6527   Alc-MSAP-Serv-Id 31 integer
+VENDORATTR	    6527   Alc-MSAP-Policy 32 string
+VENDORATTR	    6527   Alc-MSAP-Interface 33 string
+VENDORATTR	    6527   Alc-PPPoE-PADO-Delay 34 integer
+VENDORATTR	    6527   Alc-PPPoE-Service-Name 35 string
+VENDORATTR	    6527   Alc-DHCP-Vendor-Class-Id 36 string
+VENDORATTR	    6527   Alc-Acct-OC-I-Inprof-Octets-64 37 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-Outprof-Octets-64 38 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Inprof-Octets-64 39 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Outprof-Octets-64 40 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-Inprof-Pkts-64 41 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-Outprof-Pkts-64 42 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Inprof-Pkts-64 43 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Outprof-Pkts-64 44 octets
+VENDORATTR	    6527   Alc-App-Prof-Str 45 string
+VENDORATTR	    6527   Alc-Tunnel-Group 46 string
+VENDORATTR	    6527   Alc-Tunnel-Algorithm 47 integer
+VENDORATTR	    6527   Alc-BGP-Policy 55 string
+VENDORATTR	    6527   Alc-BGP-Auth-Keychain 56 string
+VENDORATTR	    6527   Alc-BGP-Auth-Key 57 octets
+VENDORATTR	    6527   Alc-BGP-Export-Policy 58 string
+VENDORATTR	    6527   Alc-BGP-Import-Policy 59 string
+VENDORATTR	    6527   Alc-BGP-PeerAS 60 integer
+VENDORATTR	    6527   Alc-IPsec-Serv-Id 61 integer
+VENDORATTR	    6527   Alc-IPsec-Interface 62 string
+VENDORATTR	    6527   Alc-IPsec-Tunnel-Template-Id 63 integer
+VENDORATTR	    6527   Alc-IPsec-SA-Lifetime 64 integer
+VENDORATTR	    6527   Alc-IPsec-SA-PFS-Group 65 integer
+VENDORATTR	    6527   Alc-IPsec-SA-Encr-Algorithm 66 integer
+VENDORATTR	    6527   Alc-IPsec-SA-Auth-Algorithm 67 integer
+VENDORATTR	    6527   Alc-IPsec-SA-Replay-Window 68 integer
+VENDORATTR	    6527   Alc-Acct-I-High-Octets-Drop_64 69 octets
+VENDORATTR	    6527   Alc-Acct-I-Low-Octets-Drop_64 70 octets
+VENDORATTR	    6527   Alc-Acct-I-High-Pack-Drop_64 71 octets
+VENDORATTR	    6527   Alc-Acct-I-Low-Pack-Drop_64 72 octets
+VENDORATTR	    6527   Alc-Acct-I-High-Octets-Offer_64 73 octets
+VENDORATTR	    6527   Alc-Acct-I-Low-Octets-Offer_64 74 octets
+VENDORATTR	    6527   Alc-Acct-I-High-Pack-Offer_64 75 octets
+VENDORATTR	    6527   Alc-Acct-I-Low-Pack-Offer_64 76 octets
+VENDORATTR	    6527   Alc-Acct-I-Unc-Octets-Offer_64 77 octets
+VENDORATTR	    6527   Alc-Acct-I-Unc-Pack-Offer_64 78 octets
+VENDORATTR	    6527   Alc-Acct-I-All-Octets-Offer_64 79 octets
+VENDORATTR	    6527   Alc-Acct-I-All-Pack-Offer_64 80 octets
+VENDORATTR	    6527   Alc-Acct-O-Inprof-Pack-Drop_64 81 octets
+VENDORATTR	    6527   Alc-Acct-O-Outprof-Pack-Drop_64 82 octets
+VENDORATTR	    6527   Alc-Acct-O-Inprof-Octs-Drop_64 83 octets
+VENDORATTR	    6527   Alc-Acct-O-Outprof-Octs-Drop_64 84 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-All-Octs-Offer_64 85 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-All-Pack-Offer_64 86 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-Inpr-Octs-Drop_64 87 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-Outpr-Octs-Drop_64 88 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-Inpr-Pack-Drop_64 89 octets
+VENDORATTR	    6527   Alc-Acct-OC-I-Outpr-Pack-Drop_64 90 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Inpr-Pack-Drop_64 91 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Outpr-Pack-Drop_64 92 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Inpr-Octs-Drop_64 93 octets
+VENDORATTR	    6527   Alc-Acct-OC-O-Outpr-Octs-Drop_64 94 octets
+VENDORATTR	    6527   Alc-Credit-Control-CategoryMap 95 string
+VENDORATTR	    6527   Alc-Credit-Control-Quota 96 string
+VENDORATTR	    6527   Alc-Force-Nak 98 string
+
+
+VENDOR			2011		Huawei
+
+VENDORATTR	    2011     	Huawei-Input-Burst-Size			1	integer
+VENDORATTR	    2011     	Huawei-Input-Average-Rate		2	integer
+VENDORATTR	    2011     	Huawei-Input-Peak-Rate			3	integer
+VENDORATTR	    2011     	Huawei-Output-Burst-Size		4	integer
+VENDORATTR	    2011     	Huawei-Output-Average-Rate		5	integer
+VENDORATTR	    2011     	Huawei-Output-Peak-Rate			6	integer
+VENDORATTR	    2011     	Huawei-In-Kb-Before-T-Switch		7	integer
+VENDORATTR	    2011     	Huawei-Out-Kb-Before-T-Switch		8	integer
+VENDORATTR	    2011     	Huawei-In-Pkt-Before-T-Switch		9	integer
+VENDORATTR	    2011     	Huawei-Out-Pkt-Before-T-Switch		10	integer
+VENDORATTR	    2011     	Huawei-In-Kb-After-T-Switch		11	integer
+VENDORATTR	    2011     	Huawei-Out-Kb-After-T-Switch		12	integer
+VENDORATTR	    2011     	Huawei-In-Pkt-After-T-Switch		13	integer
+VENDORATTR	    2011     	Huawei-Out-Pkt-After-T-Switch		14	integer
+VENDORATTR	    2011     	Huawei-Remanent-Volume			15	integer
+VENDORATTR	    2011     	Huawei-Tariff-Switch-Interval		16	integer
+VENDORATTR	    2011     	Huawei-ISP-ID				17	string
+VENDORATTR	    2011     	Huawei-Max-Users-Per-Logic-Port		18	integer
+VENDORATTR	    2011     	Huawei-Command				20	integer
+VENDORATTR	    2011     	Huawei-Priority				22	integer
+VENDORATTR	    2011     	Huawei-Control-Identifier		24	integer
+
+VENDORATTR	    2011     	Huawei-Result-Code			25	integer
+
+VALUE	Huawei-Result-Code		Succeeded		0
+
+VENDORATTR	    2011     	Huawei-Connect-ID			26	integer
+VENDORATTR	    2011     	Huawei-PortalURL			27	string
+VENDORATTR	    2011     	Huawei-FTP-Directory			28	string
+VENDORATTR	    2011     	Huawei-Exec-Privilege			29	integer
+VENDORATTR	    2011     	Huawei-IP-Address			30	integer
+VENDORATTR	    2011     	Huawei-Qos-Profile-Name			31	string
+VENDORATTR	    2011     	Huawei-SIP-Server			32	string
+VENDORATTR	    2011     	Huawei-User-Password			33	string
+VENDORATTR	    2011     	Huawei-Command-Mode			34	string
+VENDORATTR	    2011     	Huawei-Renewal-Time			35	integer
+VENDORATTR	    2011     	Huawei-Rebinding-Time			36	integer
+VENDORATTR	    2011     	Huawei-IGMP-Enable			37	integer
+VENDORATTR	    2011     	Huawei-Destnation-IP-Addr		39	string
+VENDORATTR	    2011     	Huawei-Destnation-Volume		40	string
+VENDORATTR	    2011     	Huawei-Startup-Stamp			59	integer
+VENDORATTR	    2011     	Huawei-IPHost-Addr			60	string
+VENDORATTR	    2011     	Huawei-Up-Priority			61	integer
+VENDORATTR	    2011     	Huawei-Down-Priority			62	integer
+VENDORATTR	    2011     	Huawei-Tunnel-VPN-Instance		63	string
+VENDORATTR	    2011     	Huawei-VT-Name				64	integer
+VENDORATTR	    2011     	Huawei-User-Date			65	string
+VENDORATTR	    2011     	Huawei-User-Class			66	string
+VENDORATTR	    2011     	Huawei-PPP-NCP-Type			70	integer
+VENDORATTR	    2011     	Huawei-VSI-Name				71	string
+VENDORATTR	    2011     	Huawei-Subnet-Mask			72	ipaddr
+VENDORATTR	    2011     	Huawei-Gateway-Address			73	ipaddr
+VENDORATTR	    2011     	Huawei-Lease-Time			74	integer
+VENDORATTR	    2011     	Huawei-Primary-WINS			75	ipaddr
+VENDORATTR	    2011     	Huawei-Secondary-WINS			76	ipaddr
+VENDORATTR	    2011     	Huawei-Input-Peak-Burst-Size		77	integer
+VENDORATTR	    2011     	Huawei-Output-Peak-Burst-Size		78	integer
+VENDORATTR	    2011     	Huawei-Reduced-CIR			79	integer
+VENDORATTR	    2011     	Huawei-Tunnel-Session-Limit		80	integer
+VENDORATTR	    2011     	Huawei-Zone-Name			81	string
+VENDORATTR	    2011     	Huawei-Data-Filter			82	string
+VENDORATTR	    2011     	Huawei-Access-Service			83	string
+VENDORATTR	    2011     	Huawei-Accounting-Level			84	integer
+VENDORATTR	    2011     	Huawei-Portal-Mode			85	integer
+
+VALUE	Huawei-Portal-Mode		PADM			0
+VALUE	Huawei-Portal-Mode		Redirectional		1
+VALUE	Huawei-Portal-Mode		Non-captive		2
+
+VENDORATTR	    2011     	Huawei-DPI-Policy-Name			86	string
+VENDORATTR	    2011     	huawei-Policy-Route			87	ipaddr
+VENDORATTR	    2011     	Huawei-Framed-Pool			88	string
+VENDORATTR	    2011     	Huawei-L2TP-Terminate-Cause		89	string
+VENDORATTR	    2011     	Huawei-Multi-Account-Mode		90	integer
+VENDORATTR	    2011     	Huawei-Queue-Profile			91	string
+VENDORATTR	    2011     	Huawei-Layer4-Session-Limit		92	integer
+VENDORATTR	    2011     	Huawei-Multicast-Profile		93	string
+VENDORATTR	    2011     	Huawei-VPN-Instance			94	string
+VENDORATTR	    2011     	Huawei-Policy-Name			95	string
+VENDORATTR	    2011     	Huawei-Tunnel-Group-Name		96	string
+VENDORATTR	    2011     	Huawei-Multicast-Source-Group		97	string
+VENDORATTR	    2011     	Huawei-Multicast-Receive-Group		98	ipaddr
+VENDORATTR	    2011     	Huawei-User-Multicast-Type		99	integer
+VENDORATTR	    2011     	Huawei-Reduced-PIR			100	integer
+VENDORATTR	    2011     	Huawei-LI-ID				101	string
+VENDORATTR	    2011     	Huawei-LI-Md-Address			102	ipaddr
+VENDORATTR	    2011     	Huawei-LI-Md-Port			103	integer
+VENDORATTR	    2011     	Huawei-LI-Md-VpnInstance		104	string
+VENDORATTR	    2011     	Huawei-Service-Chg-Cmd			105	integer
+VENDORATTR	    2011     	Huawei-Acct-Packet-Type			106	integer
+VENDORATTR	    2011     	Huawei-Call-Reference			107	integer
+VENDORATTR	    2011     	Huawei-PSTN-Port			108	integer
+VENDORATTR	    2011     	Huawei-Voip-Service-Type		109	integer
+VENDORATTR	    2011     	Huawei-Acct-Connection-Time		110	integer
+VENDORATTR	    2011     	Huawei-Error-Reason			112	integer
+VENDORATTR	    2011     	Huawei-Remain-Monney			113	integer
+VENDORATTR	    2011     	Huawei-Org-GK-ipaddr			123	ipaddr
+VENDORATTR	    2011     	Huawei-Org-GW-ipaddr			124	ipaddr
+VENDORATTR	    2011     	Huawei-Dst-GK-ipaddr			125	ipaddr
+VENDORATTR	    2011     	Huawei-Dst-GW-ipaddr			126	ipaddr
+VENDORATTR	    2011     	Huawei-Access-Num			127	string
+VENDORATTR	    2011     	Huawei-Remain-Time			128	integer
+VENDORATTR	    2011     	Huawei-Codec-Type			131	integer
+VENDORATTR	    2011     	Huawei-Transfer-Num			132	string
+VENDORATTR	    2011     	Huawei-New-User-Name			133	string
+VENDORATTR	    2011     	Huawei-Transfer-Station-Id		134	string
+VENDORATTR	    2011     	Huawei-Primary-DNS			135	ipaddr
+VENDORATTR	    2011     	Huawei-Secondary-DNS			136	ipaddr
+VENDORATTR	    2011     	Huawei-ONLY-Account-Type		137	integer
+VENDORATTR	    2011     	Huawei-Domain-Name			138	string
+VENDORATTR	    2011     	Huawei-ANCP-Profile			139	string
+VENDORATTR	    2011     	Huawei-HTTP-Redirect-URL		140	string
+VENDORATTR	    2011     	Huawei-Loopback-Address			141	string
+VENDORATTR	    2011     	Huawei-QoS-Profile-Type			142	integer
+
+VALUE	Huawei-QoS-Profile-Type		Original		0
+VALUE	Huawei-QoS-Profile-Type		L2TP-Inbound		1
+VALUE	Huawei-QoS-Profile-Type		L2TP-Outbound		2
+VALUE	Huawei-QoS-Profile-Type		L2TP			3
+
+VENDORATTR	    2011     	Huawei-Max-List-Num				143	integer
+VENDORATTR	    2011     	Huawei-Acct-IPv6-Input-Octets		144	integer
+VENDORATTR	    2011     	Huawei-Acct-IPv6-Output-Octets		145	integer
+VENDORATTR	    2011     	Huawei-Acct-IPv6-Input-Packets		146	integer
+VENDORATTR	    2011     	Huawei-Acct-IPv6-Output-Packets		147	integer
+VENDORATTR	    2011     	Huawei-Acct-IPv6-Input-Gigawords	148	integer
+VENDORATTR	    2011     	Huawei-Acct-IPv6-Output-Gigawords	149	integer
+VENDORATTR	    2011     	Huawei-DHCPv6-Option37			150	string
+VENDORATTR	    2011     	Huawei-DHCPv6-Option38			151	string
+VENDORATTR	    2011     	Huawei-User-Mac					153	string
+VENDORATTR	    2011     	Huawei-DNS-Server-IPv6-address	154	ipv6addr
+VENDORATTR	    2011     	Huawei-DHCPv4-Option121			155	string
+VENDORATTR	    2011     	Huawei-DHCPv4-Option43			156	string
+VENDORATTR	    2011     	Huawei-Framed-Pool-Group		157	string
+VENDORATTR	    2011     	Huawei-Framed-IPv6-Address		158	ipv6addr
+VENDORATTR	    2011     	Huawei-Acct-Update-Address		159	integer
+VENDORATTR	    2011     	Huawei-NAT-Policy-Name			160	string
+VENDORATTR	    2011     	Huawei-NAT-Public-Address		161	string
+VENDORATTR	    2011     	Huawei-NAT-Start-Port			162	string
+VENDORATTR	    2011     	Huawei-NAT-End-Port				163	string
+VENDORATTR	    2011     	Huawei-NAT-Port-Forwarding		164	string
+
+VENDORATTR	    2011     	Huawei-NAT-Port-Range-Update	165	integer
+VENDORATTR	    2011     	Huawei-DS-Lite-Tunnel-Name		166	string
+VENDORATTR	    2011     	Huawei-PCP-Server-Name			167	string
+VENDORATTR	    2011     	Huawei-Public-IP-Addr-State		168	integer
+
+VALUE	Huawei-Public-IP-Addr-State	Safe			0
+VALUE	Huawei-Public-IP-Addr-State	Warning			1
+VALUE	Huawei-Public-IP-Addr-State	Danger			2
+
+VENDORATTR	    2011     	Huawei-Auth-Type			180	integer
+
+VALUE	Huawei-Auth-Type		PPP			1
+VALUE	Huawei-Auth-Type		Web			2
+VALUE	Huawei-Auth-Type		Dot1x			3
+VALUE	Huawei-Auth-Type		Fast			4
+VALUE	Huawei-Auth-Type		Bind			5
+VALUE	Huawei-Auth-Type		WLAN			6
+VALUE	Huawei-Auth-Type		Administrative		7
+VALUE	Huawei-Auth-Type		Tunnel			8
+VALUE	Huawei-Auth-Type		MIP			9
+VALUE	Huawei-Auth-Type		None			10
+
+VENDORATTR	    2011     	Huawei-Acct-Terminate-Subcause		181	string
+VENDORATTR	    2011     	Huawei-Down-QOS-Profile-Name		182	string
+VENDORATTR	    2011     	Huawei-Port-Mirror			183	integer
+
+VALUE	Huawei-Port-Mirror		Disable			0
+VALUE	Huawei-Port-Mirror		Uplink-Enable		1
+VALUE	Huawei-Port-Mirror		Downlink-Enable		2
+VALUE	Huawei-Port-Mirror		Enable			3
+
+
+VENDORATTR	    2011     	Huawei-Account-Info			184	string
+VENDORATTR	    2011     	Huawei-Service-Info			185	string
+VENDORATTR	    2011     	Huawei-DHCP-Option			187	octets
+VENDORATTR	    2011     	Huawei-AVpair				188	string
+VENDORATTR	    2011     	Huawei-Delegated-IPv6-Prefix-Pool	191	string
+VENDORATTR	    2011     	Huawei-IPv6-Prefix-Lease		192	octets
+VENDORATTR	    2011     	Huawei-IPv6-Address-Lease		193	octets
+VENDORATTR	    2011     	Huawei-IPv6-Policy-Route		194	string
+VENDORATTR	    2011     	Huawei-MNG-IPv6				196	integer
+
+VALUE	Huawei-MNG-IPv6			Unsupported		0
+VALUE	Huawei-MNG-IPv6			Supported		1
+
+VENDORATTR	    2011     	Huawei-Flow-Info			211	string
+VENDORATTR	    2011     	Huawei-Flow-Id				212	integer
+VENDORATTR	    2011     	Huawei-DHCP-Server-IP			214	ipaddr
+VENDORATTR	    2011     	Huawei-Application-Type			215	integer
+
+VALUE	Huawei-Application-Type		Fixed			1
+VALUE	Huawei-Application-Type		Nomadic			2
+VALUE	Huawei-Application-Type		Portable		3
+VALUE	Huawei-Application-Type		Simple-Mobile		4
+VALUE	Huawei-Application-Type		Full-Mobile		5
+
+VENDORATTR	    2011     	Huawei-Indication-Flag			216	octets
+VENDORATTR	    2011     	Huawei-Original_NAS-IP_Address		217	ipaddr
+VENDORATTR	    2011     	Huawei-User-Priority			218	integer
+
+VALUE	Huawei-User-Priority		Common			0
+VALUE	Huawei-User-Priority		Copper			1
+VALUE	Huawei-User-Priority		Silver			2
+VALUE	Huawei-User-Priority		Gold			3
+
+VENDORATTR	    2011     	Huawei-ACS-Url				219	string
+VENDORATTR	    2011     	Huawei-Provision-Code			220	string
+VENDORATTR	    2011     	Huawei-Application-Scene		221	octets
+VENDORATTR	    2011     	Huawei-MS-Maximum-MAC-Study-Number	222	octets
+VENDORATTR	    2011     	Huawei-GGSN-Vendor			232	string
+VENDORATTR	    2011     	Huawei-GGSN-Version			233	string
+VENDORATTR	    2011     	Huawei-Web-URL				253	string
+VENDORATTR	    2011     	Huawei-Version				254	string
+VENDORATTR	    2011     	Huawei-Product-ID			255	string
+
+VENDOR			12356	Fortinet
+
+VENDORATTR 12356	Fortinet-Group-Name 			1 string
+VENDORATTR 12356	Fortinet-Client-IP-Address 		2 ipaddr
+VENDORATTR 12356	Fortinet-Vdom-Name 				3 string
+VENDORATTR 12356	Fortinet-Client-IPv6-Address 	4 octets
+VENDORATTR 12356	Fortinet-Interface-Name 		5 string
+VENDORATTR 12356	Fortinet-Access-Profile 		6 string
+
+VENDOR			2636	Juniper
+
+VENDORATTR 2636	Juniper-Local-User-Name 			1 string
+VENDORATTR 2636	Juniper-Allow-Commands	 			2 string
+VENDORATTR 2636	Juniper-Deny-Commands	 			3 string
+VENDORATTR 2636	Juniper-Allow-Configuration			4 string
+VENDORATTR 2636	Juniper-Deny-Configuration 			5 string
+VENDORATTR 2636	Juniper-Interactive-Command			8 string
+VENDORATTR 2636	Juniper-Configuration-Change		9 string
+VENDORATTR 2636	Juniper-User-Permissions 			10 string
+VENDORATTR 2636	Juniper-Authentication-Type			11 string
+VENDORATTR 2636	Juniper-Session-Port	 			12 string
+
+VENDOR			637		Alcatel-ESAM
+
+VENDORATTR	637 A-AL-AAA							1801	integer
+
+VALUE	A-AL-AAA		Alcatel-No-Priv 			0
+VALUE	A-AL-AAA		Alcatel-Read-Priv			1
+VALUE	A-AL-AAA		Alcatel-Write-Priv			2
+VALUE	A-AL-AAA		Alcatel-RW-Priv				3
+
+VENDORATTR 637  A_AL_ATM                    		1802    integer
+VENDORATTR 637  A_AL_ALARM                  		1803    integer
+VENDORATTR 637  A_AL_DHCP                   		1804    integer
+VENDORATTR 637  A_AL_EQP                    		1805    integer
+VENDORATTR 637  A_AL_IGMP                   		1806    integer
+VENDORATTR 637  A_AL_CPEPROXY               		1807    integer
+VENDORATTR 637  A_AL_IP                     		1808    integer
+VENDORATTR 637  A_AL_PPPOE                  		1809    integer
+VENDORATTR 637  A_AL_QOS                    		1810    integer
+VENDORATTR 637  A_AL_SWMGT                  		1811    integer
+VENDORATTR 637  A_AL_TRANSPORT              		1812    integer
+VENDORATTR 637  A_AL_VLAN                   		1813    integer
+VENDORATTR 637  A_AL_XDSL                   		1814    integer
+VENDORATTR 637  A_AL_SECURITY               		1815    integer
+VENDORATTR 637  A_AL_CLUSTER                		1816    integer
+VENDORATTR 637  A_AL_PROMPT                 		1817    integer
+VENDORATTR 637  A_AL_PWD_TIMEOUT            		1818    integer
+VENDORATTR 637  A_AL_DESCRIPTION            		1819    integer
+VENDORATTR 637  A_AL_SLOT_NUMBERING         		1820    integer
+VENDORATTR 637  A_AL_SERVICE                		1821    integer
+VENDORATTR 637  A_AL_DEBUG                  		1822    integer
+VENDORATTR 637  A_AL_DEBUGMIRROR            		1823    integer
+VENDORATTR 637  A_AL_FILTER                 		1824    integer
+VENDORATTR 637  A_AL_LINK                   		1825    integer
+VENDORATTR 637  A_AL_LOG                    		1826    integer
+VENDORATTR 637  A_AL_OAM                    		1827    integer
+VENDORATTR 637  A_AL_SIP                    		1828    integer
+VENDORATTR 637  A_AL_MEGACO                 		1829    integer
+VENDORATTR 637  A_AL_LACP                   		1830    integer
+VENDORATTR 637  A_AL_MSTP                   		1831    integer
+VENDORATTR 637  A_AL_DROUTER               			1832    integer
+
+
+# IPACCT B-RAS Radius dictionary
+# $Id: dictionary.ipacct,v 1.3 2022/01/10 02:09:34 bbonev Exp $
+
+VENDOR          39690		IPACCT
+# these VENDORATTR      39690s are processed if present in access-accept packets
+# besides them the following standard VENDORATTR      39690s are also valid
+#   Reply-Message
+#   Session-Timeout
+#   Acct-Interim-Interval
+
+# traffic caps; any combination can be used
+# different caps are applied independently with logical OR
+VENDORATTR      39690       IA-Cap0-Upload-Bytes            1      string
+VENDORATTR      39690       IA-Cap1-Upload-Bytes            2      string
+VENDORATTR      39690       IA-Cap2-Upload-Bytes            3      string
+VENDORATTR      39690       IA-Cap3-Upload-Bytes            4      string
+VENDORATTR      39690       IA-Cap4-Upload-Bytes            5      string
+VENDORATTR      39690       IA-Cap5-Upload-Bytes            6      string
+VENDORATTR      39690       IA-Cap6-Upload-Bytes            7      string
+VENDORATTR      39690       IA-Cap7-Upload-Bytes            8      string
+VENDORATTR      39690       IA-Cap8-Upload-Bytes            9      string
+VENDORATTR      39690       IA-Cap9-Upload-Bytes           10      string
+VENDORATTR      39690       IA-CapA-Upload-Bytes           11      string
+VENDORATTR      39690       IA-CapB-Upload-Bytes           12      string
+VENDORATTR      39690       IA-CapC-Upload-Bytes           13      string
+VENDORATTR      39690       IA-CapD-Upload-Bytes           14      string
+VENDORATTR      39690       IA-CapE-Upload-Bytes           15      string
+VENDORATTR      39690       IA-CapF-Upload-Bytes           16      string
+VENDORATTR      39690       IA-Cap0-Download-Bytes         17      string
+VENDORATTR      39690       IA-Cap1-Download-Bytes         18      string
+VENDORATTR      39690       IA-Cap2-Download-Bytes         19      string
+VENDORATTR      39690       IA-Cap3-Download-Bytes         20      string
+VENDORATTR      39690       IA-Cap4-Download-Bytes         21      string
+VENDORATTR      39690       IA-Cap5-Download-Bytes         22      string
+VENDORATTR      39690       IA-Cap6-Download-Bytes         23      string
+VENDORATTR      39690       IA-Cap7-Download-Bytes         24      string
+VENDORATTR      39690       IA-Cap8-Download-Bytes         25      string
+VENDORATTR      39690       IA-Cap9-Download-Bytes         26      string
+VENDORATTR      39690       IA-CapA-Download-Bytes         27      string
+VENDORATTR      39690       IA-CapB-Download-Bytes         28      string
+VENDORATTR      39690       IA-CapC-Download-Bytes         29      string
+VENDORATTR      39690       IA-CapD-Download-Bytes         30      string
+VENDORATTR      39690       IA-CapE-Download-Bytes         31      string
+VENDORATTR      39690       IA-CapF-Download-Bytes         32      string
+VENDORATTR      39690       IA-Cap0-Total-Bytes            33      string
+VENDORATTR      39690       IA-Cap1-Total-Bytes            34      string
+VENDORATTR      39690       IA-Cap2-Total-Bytes            35      string
+VENDORATTR      39690       IA-Cap3-Total-Bytes            36      string
+VENDORATTR      39690       IA-Cap4-Total-Bytes            37      string
+VENDORATTR      39690       IA-Cap5-Total-Bytes            38      string
+VENDORATTR      39690       IA-Cap6-Total-Bytes            39      string
+VENDORATTR      39690       IA-Cap7-Total-Bytes            40      string
+VENDORATTR      39690       IA-Cap8-Total-Bytes            41      string
+VENDORATTR      39690       IA-Cap9-Total-Bytes            42      string
+VENDORATTR      39690       IA-CapA-Total-Bytes            43      string
+VENDORATTR      39690       IA-CapB-Total-Bytes            44      string
+VENDORATTR      39690       IA-CapC-Total-Bytes            45      string
+VENDORATTR      39690       IA-CapD-Total-Bytes            46      string
+VENDORATTR      39690       IA-CapE-Total-Bytes            47      string
+VENDORATTR      39690       IA-CapF-Total-Bytes            48      string
+VENDORATTR      39690       IA-Cap-Total-Bytes             49      string
+
+# processing parameters
+
+# cap action
+VENDORATTR      39690       IA-Cap-Action                  50      integer
+VALUE           IA-Cap-Action   IA-NONE         0
+VALUE           IA-Cap-Action   IA-STOP         1
+VALUE           IA-Cap-Action   IA-RE80         2
+VALUE           IA-Cap-Action   IA-BOTH         3
+# set TTL towards client
+VENDORATTR      39690       IA-TTL-Limit                   51      long
+# allow traffic only on ppp interfaces
+VENDORATTR      39690       IA-PPP-Limit                   52      integer
+VALUE           IA-PPP-Limit       IA-PPP       1
+VALUE           IA-PPP-Limit       IA-ANY       2
+# set TCP connection limit per direction
+VENDORATTR      39690       IA-TCP-Connection-Limit-RX     53      integer
+VENDORATTR      39690       IA-TCP-Connection-Limit-TX     54      integer
+# set interface limit
+VENDORATTR      39690       IA-Interface-Limit             55      string
+# set allowed mac addresses (up to 16 values are supported)
+# the format is binary - length must be a multiple of 6
+# this is the only VENDORATTR      39690 that can be included more than once
+VENDORATTR      39690       IA-MAC-Limit                   56      octets
+
+# speed limits and bursts
+# speed limits are in octets/second
+# bursts are in octets
+VENDORATTR      39690       IA-Rate0-Download              57      integer
+VENDORATTR      39690       IA-Rate1-Download              58      integer
+VENDORATTR      39690       IA-Rate2-Download              59      integer
+VENDORATTR      39690       IA-Rate3-Download              60      integer
+VENDORATTR      39690       IA-Rate4-Download              61      integer
+VENDORATTR      39690       IA-Rate5-Download              62      integer
+VENDORATTR      39690       IA-Rate6-Download              63      integer
+VENDORATTR      39690       IA-Rate7-Download              64      integer
+VENDORATTR      39690       IA-Rate8-Download              65      integer
+VENDORATTR      39690       IA-Rate9-Download              66      integer
+VENDORATTR      39690       IA-RateA-Download              67      integer
+VENDORATTR      39690       IA-RateB-Download              68      integer
+VENDORATTR      39690       IA-RateC-Download              69      integer
+VENDORATTR      39690       IA-RateD-Download              70      integer
+VENDORATTR      39690       IA-RateE-Download              71      integer
+VENDORATTR      39690       IA-RateF-Download              72      integer
+VENDORATTR      39690       IA-Rate0-Upload                73      integer
+VENDORATTR      39690       IA-Rate1-Upload                74      integer
+VENDORATTR      39690       IA-Rate2-Upload                75      integer
+VENDORATTR      39690       IA-Rate3-Upload                76      integer
+VENDORATTR      39690       IA-Rate4-Upload                77      integer
+VENDORATTR      39690       IA-Rate5-Upload                78      integer
+VENDORATTR      39690       IA-Rate6-Upload                79      integer
+VENDORATTR      39690       IA-Rate7-Upload                80      integer
+VENDORATTR      39690       IA-Rate8-Upload                81      integer
+VENDORATTR      39690       IA-Rate9-Upload                82      integer
+VENDORATTR      39690       IA-RateA-Upload                83      integer
+VENDORATTR      39690       IA-RateB-Upload                84      integer
+VENDORATTR      39690       IA-RateC-Upload                85      integer
+VENDORATTR      39690       IA-RateD-Upload                86      integer
+VENDORATTR      39690       IA-RateE-Upload                87      integer
+VENDORATTR      39690       IA-RateF-Upload                88      integer
+VENDORATTR      39690       IA-Burst0-Download             89      integer
+VENDORATTR      39690       IA-Burst1-Download             90      integer
+VENDORATTR      39690       IA-Burst2-Download             91      integer
+VENDORATTR      39690       IA-Burst3-Download             92      integer
+VENDORATTR      39690       IA-Burst4-Download             93      integer
+VENDORATTR      39690       IA-Burst5-Download             94      integer
+VENDORATTR      39690       IA-Burst6-Download             95      integer
+VENDORATTR      39690       IA-Burst7-Download             96      integer
+VENDORATTR      39690       IA-Burst8-Download             97      integer
+VENDORATTR      39690       IA-Burst9-Download             98      integer
+VENDORATTR      39690       IA-BurstA-Download             99      integer
+VENDORATTR      39690       IA-BurstB-Download            100      integer
+VENDORATTR      39690       IA-BurstC-Download            101      integer
+VENDORATTR      39690       IA-BurstD-Download            102      integer
+VENDORATTR      39690       IA-BurstE-Download            103      integer
+VENDORATTR      39690       IA-BurstF-Download            104      integer
+VENDORATTR      39690       IA-Burst0-Upload              105      integer
+VENDORATTR      39690       IA-Burst1-Upload              106      integer
+VENDORATTR      39690       IA-Burst2-Upload              107      integer
+VENDORATTR      39690       IA-Burst3-Upload              108      integer
+VENDORATTR      39690       IA-Burst4-Upload              109      integer
+VENDORATTR      39690       IA-Burst5-Upload              110      integer
+VENDORATTR      39690       IA-Burst6-Upload              111      integer
+VENDORATTR      39690       IA-Burst7-Upload              112      integer
+VENDORATTR      39690       IA-Burst8-Upload              113      integer
+VENDORATTR      39690       IA-Burst9-Upload              114      integer
+VENDORATTR      39690       IA-BurstA-Upload              115      integer
+VENDORATTR      39690       IA-BurstB-Upload              116      integer
+VENDORATTR      39690       IA-BurstC-Upload              117      integer
+VENDORATTR      39690       IA-BurstD-Upload              118      integer
+VENDORATTR      39690       IA-BurstE-Upload              119      integer
+VENDORATTR      39690       IA-BurstF-Upload              120      integer
+
+# class definitions as per B-RAS configuration
+VENDORATTR      39690       IA-Class0-Download            121      string
+VENDORATTR      39690       IA-Class1-Download            122      string
+VENDORATTR      39690       IA-Class2-Download            123      string
+VENDORATTR      39690       IA-Class3-Download            124      string
+VENDORATTR      39690       IA-Class4-Download            125      string
+VENDORATTR      39690       IA-Class5-Download            126      string
+VENDORATTR      39690       IA-Class6-Download            127      string
+VENDORATTR      39690       IA-Class7-Download            128      string
+VENDORATTR      39690       IA-Class8-Download            129      string
+VENDORATTR      39690       IA-Class9-Download            130      string
+VENDORATTR      39690       IA-ClassA-Download            131      string
+VENDORATTR      39690       IA-ClassB-Download            132      string
+VENDORATTR      39690       IA-ClassC-Download            133      string
+VENDORATTR      39690       IA-ClassD-Download            134      string
+VENDORATTR      39690       IA-ClassE-Download            135      string
+VENDORATTR      39690       IA-ClassF-Download            136      string
+VENDORATTR      39690       IA-Class0-Upload              137      string
+VENDORATTR      39690       IA-Class1-Upload              138      string
+VENDORATTR      39690       IA-Class2-Upload              139      string
+VENDORATTR      39690       IA-Class3-Upload              140      string
+VENDORATTR      39690       IA-Class4-Upload              141      string
+VENDORATTR      39690       IA-Class5-Upload              142      string
+VENDORATTR      39690       IA-Class6-Upload              143      string
+VENDORATTR      39690       IA-Class7-Upload              144      string
+VENDORATTR      39690       IA-Class8-Upload              145      string
+VENDORATTR      39690       IA-Class9-Upload              146      string
+VENDORATTR      39690       IA-ClassA-Upload              147      string
+VENDORATTR      39690       IA-ClassB-Upload              148      string
+VENDORATTR      39690       IA-ClassC-Upload              149      string
+VENDORATTR      39690       IA-ClassD-Upload              150      string
+VENDORATTR      39690       IA-ClassE-Upload              151      string
+VENDORATTR      39690       IA-ClassF-Upload              152      string
+
+# these VENDORATTR      39690s are present in accounting reports
+
+# accounting per traffic group
+# values are in base10 text
+VENDORATTR      39690       IA-Acct0-Download             153      string
+VENDORATTR      39690       IA-Acct1-Download             154      string
+VENDORATTR      39690       IA-Acct2-Download             155      string
+VENDORATTR      39690       IA-Acct3-Download             156      string
+VENDORATTR      39690       IA-Acct4-Download             157      string
+VENDORATTR      39690       IA-Acct5-Download             158      string
+VENDORATTR      39690       IA-Acct6-Download             159      string
+VENDORATTR      39690       IA-Acct7-Download             160      string
+VENDORATTR      39690       IA-Acct8-Download             161      string
+VENDORATTR      39690       IA-Acct9-Download             162      string
+VENDORATTR      39690       IA-AcctA-Download             163      string
+VENDORATTR      39690       IA-AcctB-Download             164      string
+VENDORATTR      39690       IA-AcctC-Download             165      string
+VENDORATTR      39690       IA-AcctD-Download             166      string
+VENDORATTR      39690       IA-AcctE-Download             167      string
+VENDORATTR      39690       IA-AcctF-Download             168      string
+VENDORATTR      39690       IA-Acct0-Upload               169      string
+VENDORATTR      39690       IA-Acct1-Upload               170      string
+VENDORATTR      39690       IA-Acct2-Upload               171      string
+VENDORATTR      39690       IA-Acct3-Upload               172      string
+VENDORATTR      39690       IA-Acct4-Upload               173      string
+VENDORATTR      39690       IA-Acct5-Upload               174      string
+VENDORATTR      39690       IA-Acct6-Upload               175      string
+VENDORATTR      39690       IA-Acct7-Upload               176      string
+VENDORATTR      39690       IA-Acct8-Upload               177      string
+VENDORATTR      39690       IA-Acct9-Upload               178      string
+VENDORATTR      39690       IA-AcctA-Upload               179      string
+VENDORATTR      39690       IA-AcctB-Upload               180      string
+VENDORATTR      39690       IA-AcctC-Upload               181      string
+VENDORATTR      39690       IA-AcctD-Upload               182      string
+VENDORATTR      39690       IA-AcctE-Upload               183      string
+VENDORATTR      39690       IA-AcctF-Upload               184      string
+
+# duplicate user action
+VENDORATTR      39690       IA-Dup-Action                 185      integer
+VALUE           IA-Dup-Action   IA-NOOP         0
+VALUE           IA-Dup-Action   IA-KILL-OLD     1
+VALUE           IA-Dup-Action   IA-KILL-NEW     2
+VALUE           IA-Dup-Action   IA-KILL-BOTH    3
+
+# account traffic status
+VENDORATTR      39690       IA-Stop-Action                186      integer
+# traffic is allowed, normal operation
+# in case the VENDORATTR      39690 is missing from a Access-Accept/CoA packet, IA-STOP-NONE will be applied
+VALUE           IA-Stop-Action  IA-STOP-NONE    0
+# traffic is not allowed, port 80 is not redirected
+VALUE           IA-Stop-Action  IA-STOP-STOP    1
+# traffic is allowed, port 80 is redirected
+VALUE           IA-Stop-Action  IA-STOP-RE80    2
+# traffic is not allowed, port 80 is redirected
+VALUE           IA-Stop-Action  IA-STOP-BOTH    3
+
+
+
+VENDOR       14988    Mikrotik
+
+VENDORATTR	14988	Mikrotik-Recv-Limit             1   integer
+VENDORATTR	14988	Mikrotik-Xmit-Limit             2   integer
+VENDORATTR	14988	Mikrotik-Group                  3   string
+VENDORATTR	14988	Mikrotik-Wireless-Forward       4   integer
+VENDORATTR	14988	Mikrotik-Wireless-Skip-Dot1x    5   integer
+VENDORATTR	14988	Mikrotik-Wireless-Enc-Algo      6   integer
+VENDORATTR	14988	Mikrotik-Wireless-Enc-Key       7   string
+VENDORATTR	14988	Mikrotik-Rate-Limit             8   string
+VENDORATTR	14988	Mikrotik-Realm                  9   string
+VENDORATTR	14988	Mikrotik-Host-IP                10  ipaddr
+VENDORATTR	14988	Mikrotik-Mark-Id                11  string
+VENDORATTR	14988	Mikrotik-Advertise-URL          12  string
+VENDORATTR	14988	Mikrotik-Advertise-Interval     13  integer
+VENDORATTR	14988	Mikrotik-Recv-Limit-Gigawords   14  integer
+VENDORATTR	14988	Mikrotik-Xmit-Limit-Gigawords   15  integer
+VENDORATTR	14988	Mikrotik-Wireless-PSK           16  string
+VENDORATTR	14988	Mikrotik-Total-Limit            17  integer
+VENDORATTR	14988	Mikrotik-Total-Limit-Gigawords  18  integer
+VENDORATTR	14988	Mikrotik-Address-List           19  string
+VENDORATTR	14988	Mikrotik-Wireless-MPKey         20  string
+VENDORATTR	14988	Mikrotik-Wireless-Comment       21  string
+VENDORATTR	14988	Mikrotik-Delegated-IPv6-Pool    22  string
+VENDORATTR	14988	Mikrotik-DHCP-Option-Set        23  string
+VENDORATTR	14988	Mikrotik-DHCP-Option-Param-STR1 24  string
+VENDORATTR	14988	Mikrotik-DHCP-Option-Param-STR2 25  string
+VENDORATTR	14988	Mikrotik-Wireless-VLANID        26  integer
+VENDORATTR	14988	Mikrotik-Wireless-VLANIDtype    27  integer
+VENDORATTR	14988	Mikrotik-Wireless-Minsignal     28  string
+VENDORATTR	14988	Mikrotik-Wireless-Maxsignal     29  string
+VENDORATTR	14988	Mikrotik-Switching-Filter       30  string
+
+VALUE           Mikrotik-Wireless-Enc-Algo            No-encryption                  0
+VALUE           Mikrotik-Wireless-Enc-Algo            40-bit-WEP                     1
+VALUE           Mikrotik-Wireless-Enc-Algo            104-bit-WEP                    2
+VALUE           Mikrotik-Wireless-Enc-Algo            AES-CCM                        3
+VALUE           Mikrotik-Wireless-Enc-Algo            TKIP                           4
+VALUE           Mikrotik-Wireless-VLANIDtype          802.1q                         0
+VALUE           Mikrotik-Wireless-VLANIDtype          802.1ad                        1
+
+
+VENDOR       43823    VasExperts
+
+VENDORATTR      43823   VasExperts-Policing-Profile     1   string
+VENDORATTR      43823   VasExperts-Service-Profile      2   string
+VENDORATTR      43823   VasExperts-Enable-Service       3   string
+VENDORATTR      43823   VasExperts-Multi-IP-User        4   integer
+VENDORATTR      43823   VasExperts-UserName             5   string
+VENDORATTR      43823   VasExperts-Service-Type         6   integer
+VENDORATTR      43823   VasExperts-Restrict-User        7   integer
+VENDORATTR      43823   VasExperts-Enable-Interconnect  8   integer
+VENDORATTR      43823   VasExperts-OutVLAN              9   integer
+VENDORATTR      43823   VasExperts-Command-Code        10   integer
+VENDORATTR      43823   VasExperts-OutMAC              11   string
+VENDORATTR      43823   VasExperts-L2-User             12   integer
+VENDORATTR      43823   VasExperts-Route-Announce      13   integer
+
+VALUE VasExperts-Service-Type   Auth        0
+VALUE VasExperts-Service-Type   DHCP        1
+VALUE VasExperts-Service-Type   PAP         2
+VALUE VasExperts-Service-Type   CHAP        3
+VALUE VasExperts-Service-Type   MS_CHAPv2   4
+VALUE VasExperts-Service-Type   MAC_QinQ    5
+VALUE VasExperts-Service-Type   ARP    	    6
+VALUE VasExperts-Service-Type   DHCPv6      7
+VALUE VasExperts-Service-Type   GTP_auth    8
+
+VALUE VasExperts-Command-Code   Check-Acct  1
+
+# Accounting
+VENDORATTR      43823   VasExperts-Acct-Traffic-Class-Name              16  string
+VENDORATTR      43823   VasExperts-Acct-Traffic-Class-Input-Octets      17  integer64
+VENDORATTR      43823   VasExperts-Acct-Traffic-Class-Output-Octets     18  integer64
+VENDORATTR      43823   VasExperts-Acct-Traffic-Class-Input-Packets     19  integer64
+VENDORATTR      43823   VasExperts-Acct-Traffic-Class-Output-Packets    20  integer64
+VENDORATTR      43823   VasExperts-NAT-IP                               21  ipaddr
+VENDORATTR      43823   VasExperts-Acct-Input-Octets-64                 22  integer64
+VENDORATTR      43823   VasExperts-Acct-Output-Octets-64                23  integer64
+VENDORATTR      43823   VasExperts-Acct-Input-Packets-64                24  integer64
+VENDORATTR      43823   VasExperts-Acct-Output-Packets-64               25  integer64
+
+# DHCP -> Radius attributes
+VENDORATTR      43823   VasExperts-DHCP-giaddr                          31  ipaddr
+VENDORATTR      43823   VasExperts-DHCP-Hostname                        32  octets
+VENDORATTR      43823   VasExperts-DHCP-ClientId                        33  octets
+VENDORATTR      43823   VasExperts-DHCP-ClassId                         34  octets
+VENDORATTR      43823   VasExperts-DHCP-RelayInfo                       35  octets
+VENDORATTR      43823   VasExperts-DHCP-ClientIP                        36  ipaddr
+VENDORATTR      43823   VasExperts-DHCP-Request                         37  integer
+VENDORATTR      43823   VasExperts-DHCP-RelayRemoteId                   38  octets
+VENDORATTR      43823   VasExperts-DHCP-RelayCircuitId                  39  octets
+
+VALUE VasExperts-DHCP-Request   Discover    0
+VALUE VasExperts-DHCP-Request   Inform      1
+VALUE VasExperts-DHCP-Request   Request     2
+
+# Radius -> DHCP (Access-Accept, Access-Reject)
+VENDORATTR      43823   VasExperts-DHCP-Option                          40  octets
+VENDORATTR      43823   VasExperts-DHCP-DNS                             41  ipaddr
+VENDORATTR      43823   VasExperts-DHCP-Gateway                         42  ipaddr
+VENDORATTR      43823   VasExperts-BOOTP-SName                          43  string
+VENDORATTR      43823   VasExperts-BOOTP-File                           44  string
+VENDORATTR      43823   VasExperts-DHCP-Option-IP                       45  string
+VENDORATTR      43823   VasExperts-DHCP-Option-Num                      46  string
+VENDORATTR      43823   VasExperts-DHCP-Option-String                   47  string
+VENDORATTR      43823   VasExperts-DHCP-Option-Bin                      48  string
+
+VENDORATTR      43823   VasExperts-ARP-SourceIP                         60  ipaddr
+VENDORATTR      43823   VasExperts-ARP-TargetIP                         61  ipaddr
+
+# DHCPv6 -> Radius attributes
+VENDORATTR      43823   VasExperts-DHCPv6-Request                       70  integer
+VENDORATTR      43823   VasExperts-DHCPv6-UserClass                     71  octets
+VENDORATTR      43823   VasExperts-DHCPv6-VendorClass                   72  octets
+VENDORATTR      43823   VasExperts-DHCPv6-RemoteId                      73  octets
+VENDORATTR      43823   VasExperts-DHCPv6-SubsId                        74  octets
+VENDORATTR      43823   VasExperts-DHCPv6-Delegated                     75  integer
+
+# Radius -> DHCPv6 attributes
+VENDORATTR      43823   VasExperts-DHCP-Option-IPv6                     80  string
+VENDORATTR      43823   VasExperts-DHCP-Option-IPv6-Prefix              81  string
+VENDORATTR      43823   VasExperts-DHCP6-Option-Num                     82  string
+VENDORATTR      43823   VasExperts-DHCP6-Option-String                  83  string
+VENDORATTR      43823   VasExperts-DHCP6-Option-Bin                     84  string
+
+VALUE VasExperts-DHCPv6-Request  Solicit    1
+VALUE VasExperts-DHCPv6-Request  Request    3
+VALUE VasExperts-DHCPv6-Request  Renew      5
+VALUE VasExperts-DHCPv6-Request  Rebind     6

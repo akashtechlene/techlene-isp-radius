@@ -1,0 +1,4 @@
+2026-06-12 17:34:57,919 INFO radiuslog [main] Initializing Radius Server
+2026-06-12 17:35:01,590 INFO radiuslog [Radius Acct Listener] starting RadiusAcctListener on port 2813
+2026-06-12 17:35:01,598 INFO radiuslog [Radius Auth Listener] starting RadiusAuthListener on port 2812
+2026-06-12 17:35:03,026 INFO radiuslog [main] *** Radius Server Started Successfully ***

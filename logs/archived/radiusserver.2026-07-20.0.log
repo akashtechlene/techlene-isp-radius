@@ -1,0 +1,80 @@
+2026-07-20 18:56:08,969 ERROR radiuslog [Radius Auth Listener] ERROR:java.lang.IllegalArgumentException: packet type out of bounds
+java.lang.IllegalArgumentException: packet type out of bounds
+	at org.tinyradius.packet.RadiusPacket.setPacketType(RadiusPacket.java:179)
+	at org.tinyradius.packet.RadiusPacket.createRadiusPacket(RadiusPacket.java:634)
+	at org.tinyradius.packet.RadiusPacket.decodePacket(RadiusPacket.java:870)
+	at org.tinyradius.packet.RadiusPacket.decodeRequestPacket(RadiusPacket.java:539)
+	at org.tinyradius.util.RadiusServer.makeRadiusPacket(RadiusServer.java:479)
+	at org.tinyradius.util.RadiusServer.listen(RadiusServer.java:356)
+	at org.tinyradius.util.RadiusServer.listenAuth(RadiusServer.java:310)
+	at org.tinyradius.util.RadiusServer$1.run(RadiusServer.java:118)
+2026-07-20 18:56:13,977 ERROR radiuslog [Radius Auth Listener] ERROR:java.lang.IllegalArgumentException: packet type out of bounds
+java.lang.IllegalArgumentException: packet type out of bounds
+	at org.tinyradius.packet.RadiusPacket.setPacketType(RadiusPacket.java:179)
+	at org.tinyradius.packet.RadiusPacket.createRadiusPacket(RadiusPacket.java:634)
+	at org.tinyradius.packet.RadiusPacket.decodePacket(RadiusPacket.java:870)
+	at org.tinyradius.packet.RadiusPacket.decodeRequestPacket(RadiusPacket.java:539)
+	at org.tinyradius.util.RadiusServer.makeRadiusPacket(RadiusServer.java:479)
+	at org.tinyradius.util.RadiusServer.listen(RadiusServer.java:356)
+	at org.tinyradius.util.RadiusServer.listenAuth(RadiusServer.java:310)
+	at org.tinyradius.util.RadiusServer$1.run(RadiusServer.java:118)
+2026-07-20 18:56:18,990 ERROR radiuslog [Radius Auth Listener] ERROR:java.lang.IllegalArgumentException: packet type out of bounds
+java.lang.IllegalArgumentException: packet type out of bounds
+	at org.tinyradius.packet.RadiusPacket.setPacketType(RadiusPacket.java:179)
+	at org.tinyradius.packet.RadiusPacket.createRadiusPacket(RadiusPacket.java:634)
+	at org.tinyradius.packet.RadiusPacket.decodePacket(RadiusPacket.java:870)
+	at org.tinyradius.packet.RadiusPacket.decodeRequestPacket(RadiusPacket.java:539)
+	at org.tinyradius.util.RadiusServer.makeRadiusPacket(RadiusServer.java:479)
+	at org.tinyradius.util.RadiusServer.listen(RadiusServer.java:356)
+	at org.tinyradius.util.RadiusServer.listenAuth(RadiusServer.java:310)
+	at org.tinyradius.util.RadiusServer$1.run(RadiusServer.java:118)
+2026-07-20 18:57:16,702 ERROR radiuslog [Radius Auth Listener] ERROR:java.lang.IllegalArgumentException: packet type out of bounds
+java.lang.IllegalArgumentException: packet type out of bounds
+	at org.tinyradius.packet.RadiusPacket.setPacketType(RadiusPacket.java:179)
+	at org.tinyradius.packet.RadiusPacket.createRadiusPacket(RadiusPacket.java:634)
+	at org.tinyradius.packet.RadiusPacket.decodePacket(RadiusPacket.java:870)
+	at org.tinyradius.packet.RadiusPacket.decodeRequestPacket(RadiusPacket.java:539)
+	at org.tinyradius.util.RadiusServer.makeRadiusPacket(RadiusServer.java:479)
+	at org.tinyradius.util.RadiusServer.listen(RadiusServer.java:356)
+	at org.tinyradius.util.RadiusServer.listenAuth(RadiusServer.java:310)
+	at org.tinyradius.util.RadiusServer$1.run(RadiusServer.java:118)
+2026-07-20 18:57:21,707 ERROR radiuslog [Radius Auth Listener] ERROR:java.lang.IllegalArgumentException: packet type out of bounds
+java.lang.IllegalArgumentException: packet type out of bounds
+	at org.tinyradius.packet.RadiusPacket.setPacketType(RadiusPacket.java:179)
+	at org.tinyradius.packet.RadiusPacket.createRadiusPacket(RadiusPacket.java:634)
+	at org.tinyradius.packet.RadiusPacket.decodePacket(RadiusPacket.java:870)
+	at org.tinyradius.packet.RadiusPacket.decodeRequestPacket(RadiusPacket.java:539)
+	at org.tinyradius.util.RadiusServer.makeRadiusPacket(RadiusServer.java:479)
+	at org.tinyradius.util.RadiusServer.listen(RadiusServer.java:356)
+	at org.tinyradius.util.RadiusServer.listenAuth(RadiusServer.java:310)
+	at org.tinyradius.util.RadiusServer$1.run(RadiusServer.java:118)
+2026-07-20 18:57:26,711 ERROR radiuslog [Radius Auth Listener] ERROR:java.lang.IllegalArgumentException: packet type out of bounds
+java.lang.IllegalArgumentException: packet type out of bounds
+	at org.tinyradius.packet.RadiusPacket.setPacketType(RadiusPacket.java:179)
+	at org.tinyradius.packet.RadiusPacket.createRadiusPacket(RadiusPacket.java:634)
+	at org.tinyradius.packet.RadiusPacket.decodePacket(RadiusPacket.java:870)
+	at org.tinyradius.packet.RadiusPacket.decodeRequestPacket(RadiusPacket.java:539)
+	at org.tinyradius.util.RadiusServer.makeRadiusPacket(RadiusServer.java:479)
+	at org.tinyradius.util.RadiusServer.listen(RadiusServer.java:356)
+	at org.tinyradius.util.RadiusServer.listenAuth(RadiusServer.java:310)
+	at org.tinyradius.util.RadiusServer$1.run(RadiusServer.java:118)
+2026-07-20 18:57:58,280 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078279][AUTH THREAD]Started...
+2026-07-20 18:57:58,280 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078279][AUTH THREAD]received packet from /172.19.192.1:51271 on local address 0.0.0.0/0.0.0.0:2812: Access-Request, ID 1
+User-Password: 0x616e7570616d6131383138
+User-Name: anupama1818
+2026-07-20 18:58:07,302 INFO radiuslog [Radius Auth Listener] ignore duplicate packet
+2026-07-20 18:58:10,489 INFO radiuslog [Radius Auth Listener] ignore duplicate packet
+2026-07-20 18:58:25,370 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL]Authentication Status:true
+2026-07-20 18:58:25,371 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL][AUTHORIZE]VLAN CHECK FAILED: ATTRIBUTE NOT FOUND IN REQUEST:87
+2026-07-20 18:58:25,377 INFO radiuslog [AUTHPOOL-4] IN GET populateAuthorizationDetails isFUPPlan:true
+2026-07-20 18:58:25,380 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL][AUTHORIZE]basePlanExists:true
+2026-07-20 18:58:25,383 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL][AUTHORIZE]Quota Available:true
+2026-07-20 18:58:25,388 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL]AUTHORIZATION STATUS:SUCCESS
+2026-07-20 18:58:25,397 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL]ALL DATABASE OPERATIONS ARE OVER
+2026-07-20 18:58:25,397 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL]Time to DB Operations:27115
+2026-07-20 18:58:25,397 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL]Final Customer Data is After Authorization :customerData [PACKET_IDENTIFIER=[anupama1818][1][1784554078282][RADAUTHIMPL], username=anupama1818, password=anupama1818, status=Active, custid=74025, balance=0, expirydate=null, checkitem=null, replyitem=null, authStatus=true, failcount=0, lastlogintime=2026-05-05 00:04:47.0, strReplyMessage=Welcome, radiusprofile=[1, 2, 7], lastpasswordupdate=2026-05-05 00:04:47.0, ASNNumber=null, BNGRouterInterface=null, BNGRouterName=, quotatype=Data, quotaunit=GB, totalquota=900.0000, usedquota=0.0000, totalquotakb=943718400.0000, usedquotakb=0.0000, timequotaunit=null, timetotalquota=-1.0000, timequotaused=0.0000, timetotalquotasec=-1.0000, timeusedquotasec=0.0000, unusedquota=900.0, unusedquotakb=9.437184E8, timequotaunused=720.0, timeunusedquotasec=2592000.0, poolname=Default, poolId=1, ipaddress=null, policyname=null, uploadspeed=null, downloadspeed=null, param1=null, param2=null, param3=null, maxSessionTime=null, basePlanExist=true, mactelflag=true, isFUPPlan=true, validUserExists=true, isMaxConcurSessionBreached=false, passwordsaveflag=true, dynamicAttrSupport=true, speedDowngradeFUP=false, isQuotaUnlimited=false, qospolicyparam={hw_upload_speed=153600000, mtk_upload_speed=150M, nokia_ingress=i:p:1:pir=153600,cir=153600,mbs=4500000,cbs=2250000, hw_download_speed=153600000, mtk_download_speed=150M, nokia_egress=e:q:1:pir=153600,cir=153600,mbs=4500000,cbs=2250000}, custPlanRelId=1334354, currentPlanId=128]
+2026-07-20 18:58:25,401 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078282][RADAUTHIMPL]AUTH Time to Final Respond:27119
+2026-07-20 18:58:25,401 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078279][AUTH THREAD]send response: Access-Accept, ID 1
+Class: 28c00626235bd493ea3a29427a6a1b244aa1bb9461c9591c2d393bdc58dfa683
+Reply-Message: Welcome
+2026-07-20 18:58:25,401 INFO radiuslog [AUTHPOOL-4] [anupama1818][1][1784554078279][AUTH THREAD]Ended. Time to Final Respond:27122

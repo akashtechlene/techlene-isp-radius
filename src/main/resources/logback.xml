@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <property name="APP_LOG_ROOT" value="logs"/>
+    <property name="LOG_PATTERN" value="%d %p %c{1.} [%t] %m%n"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="RadiusLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG_ROOT}/radiusserver.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${APP_LOG_ROOT}/archived/radiusserver.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            total size of all archive files, if total size > 5GB, it will delete old archived file
+            <totalSizeCap>5GB</totalSizeCap>
+            50 files to keep
+            <maxHistory>50</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="ReqResLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG_ROOT}/requestresponse.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${APP_LOG_ROOT}/archived/requestresponse.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            total size of all archive files, if total size > 5GB, it will delete old archived file
+            <totalSizeCap>5GB</totalSizeCap>
+            50 files to keep
+            <maxHistory>50</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="rstacklog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG_ROOT}/rstack.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${APP_LOG_ROOT}/archived/rstack.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            total size of all archive files, if total size > 1GB, it will delete old archived file
+            <totalSizeCap>1GB</totalSizeCap>
+            10 files to keep
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="coalog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG_ROOT}/coalog.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${APP_LOG_ROOT}/archived/coalog.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            total size of all archive files, if total size > 1GB, it will delete old archived file
+            <totalSizeCap>1GB</totalSizeCap>
+            10 files to keep
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="radiuslog-async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="RadiusLog" />
+    </appender>
+
+    <appender name="reqreslog-async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ReqResLog" />
+    </appender>
+    <appender name="rstack-async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="rstacklog" />
+    </appender>
+    <appender name="coalog-async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="coalog" />
+    </appender>
+
+
+    <logger name="radiuslog" level="INFO" additivity="false">
+        <appender-ref ref="radiuslog-async"/>
+    </logger>
+
+    <logger name="reqresplog" level="INFO" additivity="false">
+        <appender-ref ref="reqreslog-async"/>
+    </logger>
+    <logger name="rstack" level="DEBUG" additivity="false">
+        <appender-ref ref="rstack-async"/>
+    </logger>
+    <logger name="coalog" level="DEBUG" additivity="false">
+        <appender-ref ref="coalog-async"/>
+    </logger>
+    <root level="ERROR">
+        <!--        <appender-ref ref="console"/>-->
+        <appender-ref ref="rstack-async"/>
+    </root>
+
+</configuration>
