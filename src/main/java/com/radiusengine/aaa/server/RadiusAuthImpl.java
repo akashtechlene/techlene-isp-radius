@@ -12,12 +12,14 @@ import com.radiusengine.aaa.data.ServerConfData;
 import com.radiusengine.aaa.data.clientData;
 import com.radiusengine.aaa.data.customerData;
 import com.radiusengine.aaa.db.DBAuthenticationDriver;
+import com.radiusengine.aaa.db.DataSource;
 import com.radiusengine.aaa.util.RSAUtility;
 import com.radiusengine.aaa.util.ValidateExpression;
 import com.radiusengine.aaa.workers.AuthAuditProcessor;
 import com.radiusengine.aaa.workers.CustAttribWorker;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -114,7 +116,8 @@ public class RadiusAuthImpl {
             String strUsername = this.request.getAttribute("User-Name").getAttributeValue();
             String strPassword = this.request.getUserPassword();
             strUsername = strUsername != null ? strUsername.trim() : null;
-            customerData custRetrunData = this.authenticateCustomer(strUsername, strPassword);
+            try (Connection conn = DataSource.getConnection()) {
+            customerData custRetrunData = this.authenticateCustomer(conn, strUsername, strPassword);
             this.log.debug(this.PACKET_IDENTIFIER + "Customer Data is  :" + custRetrunData.toString());
             HashMap hsAuthRes;
             if (custRetrunData.isAuthStatus() && acceptAll) {
@@ -136,15 +139,15 @@ public class RadiusAuthImpl {
             }
 
             if (null != custRetrunData && null == custRetrunData.getPassword() && !custRetrunData.isAuthStatus() && !custRetrunData.isPasswordsaveflag() && this.checkConfigurationForPasswordSaveOnFirstLogin()) {
-                custRetrunData = this.setPasswordForFirstAttempt(custRetrunData, strPassword, strUsername);
+                custRetrunData = this.setPasswordForFirstAttempt(conn, custRetrunData, strPassword, strUsername);
             }
 
             if (custRetrunData != null && custRetrunData.getUsername() == null) {
-                int custid = this.findCustMacMapping(strUsername);
+                int custid = this.findCustMacMapping(conn, strUsername);
                 if (custid != 0) {
                     this.log.debug(this.PACKET_IDENTIFIER + "MAC MAPPING FOUND: Cust is:" + custid);
                 } else {
-                    custid = this.findCustIPMapping(strUsername);
+                    custid = this.findCustIPMapping(conn, strUsername);
                     if (custid != 0) {
                         this.log.debug(this.PACKET_IDENTIFIER + "IP MAPPING FOUND: Cust is:" + custid);
                     }
@@ -152,9 +155,9 @@ public class RadiusAuthImpl {
 
                 if (custid != 0) {
                     this.log.debug(this.PACKET_IDENTIFIER + "Cust ID is:" + custid);
-                    customerData custDBData = this.getCustomerFromCustid(custid);
+                    customerData custDBData = this.getCustomerFromCustid(conn, custid);
                     if (custDBData != null && custDBData.getUsername() != null) {
-                        custRetrunData = this.authenticateCustomer(custDBData.getUsername(), custDBData.getPassword());
+                        custRetrunData = this.authenticateCustomer(conn, custDBData.getUsername(), custDBData.getPassword());
                         if (custRetrunData.getNetworktype() != null && custRetrunData.getNetworktype().length() > 0 && custRetrunData.getNetworktype().equalsIgnoreCase(AAAConstant.NETWORK_TYPE_IPOE)) {
                             custRetrunData.setCui(custDBData.getUsername());
                             this.request.removeAttributes(1);
@@ -177,10 +180,10 @@ public class RadiusAuthImpl {
             if (custRetrunData != null && custRetrunData.isAuthStatus()) {
                 custRetrunData.setPACKET_IDENTIFIER(this.PACKET_IDENTIFIER);
                 accessResponse.setPacketType(2);
-                this.authorizeCustomer(custRetrunData, this.request, accessResponse);
+                this.authorizeCustomer(conn, custRetrunData, this.request, accessResponse);
                 if (custRetrunData.isAuthStatus()) {
                     this.log.info(this.PACKET_IDENTIFIER + "AUTHORIZATION STATUS:SUCCESS");
-                    this.popuplateAccessResponseDetails(custRetrunData);
+                    this.popuplateAccessResponseDetails(conn, custRetrunData);
                     this.log.info(this.PACKET_IDENTIFIER + "ALL DATABASE OPERATIONS ARE OVER");
                     long endTime = System.currentTimeMillis();
                     this.log.info(this.PACKET_IDENTIFIER + "Time to DB Operations:" + (endTime - this.lngStartTime));
@@ -228,6 +231,7 @@ public class RadiusAuthImpl {
             hsAuthRes.put(AAAConstant.CLIENTIP, this.client.getAddress().toString());
             RadiusAuthAuditPool.getInstance().getExecutor().execute(new AuthAuditProcessor(hsAuthRes, this.PACKET_IDENTIFIER));
             this.log.debug(this.PACKET_IDENTIFIER + "Final Data Dumping Username :" + this.request.getUserName() + ":Message:" + custRetrunData.getStrReplyMessage() + ":Type:" + accessResponse.getPacketType() + ":IP:" + this.client.getAddress().toString());
+            }
         } catch (Exception var15) {
             Exception e = var15;
             accessResponse.addAttribute("Reply-Message", "Internal Error Authentication Fail");
@@ -245,24 +249,24 @@ public class RadiusAuthImpl {
         return dbAuthDriver.checkServerConfForPasswordSave();
     }
 
-    private customerData setPasswordForFirstAttempt(customerData custData, String strPassword, String strUsername) {
+    private customerData setPasswordForFirstAttempt(Connection conn, customerData custData, String strPassword, String strUsername) {
         DBAuthenticationDriver dbAuthenticationDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        return dbAuthenticationDriver.setPasswordOnFirstLogin(custData, strPassword, strUsername);
+        return dbAuthenticationDriver.setPasswordOnFirstLogin(conn, custData, strPassword, strUsername);
     }
 
-    public customerData authenticateCustomer(String strUsername, String strPassword) {
+    public customerData authenticateCustomer(Connection conn, String strUsername, String strPassword) {
         DBAuthenticationDriver dbAuthDrive = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
         customerData custData = new customerData();
         custData.setUsername(strUsername);
         custData.setPassword(strPassword);
-        customerData custRetrunData = dbAuthDrive.authenticateCustomer(custData);
+        customerData custRetrunData = dbAuthDrive.authenticateCustomer(conn, custData);
         return custRetrunData;
     }
 
-    public void authorizeCustomer(customerData custRetrunData, AccessRequest request, RadiusPacket accessResponse) {
+    public void authorizeCustomer(Connection conn, customerData custRetrunData, AccessRequest request, RadiusPacket accessResponse) {
         this.log.debug(this.PACKET_IDENTIFIER + "authorizeCustomer () Called:");
         if (request.getAttribute(31) != null && custRetrunData.isMactelflag()) {
-            boolean flag = this.validateMacBinding(custRetrunData, request.getAttribute(31).getAttributeValue().toString());
+            boolean flag = this.validateMacBinding(conn, custRetrunData, request.getAttribute(31).getAttributeValue().toString());
             if (!flag) {
                 custRetrunData.setAuthStatus(false);
                 custRetrunData.setStrReplyMessage("Mac Validation Failed");
@@ -295,7 +299,7 @@ public class RadiusAuthImpl {
         this.log.debug(this.PACKET_IDENTIFIER + "VLAN_RADIUS_PACK_ATTR:" + VLAN_RADIUS_PACK_ATTR, "accessReqVlan:" + accessReqVlan);
         if (request.getAttribute(VLAN_RADIUS_PACK_ATTR) != null && custRetrunData.isVlanEnable() && accessReqVlan != null) {
             boolean flag = false;
-            flag = this.validateVlanBinding(custRetrunData, accessReqVlan);
+            flag = this.validateVlanBinding(conn, custRetrunData, accessReqVlan);
             if (!flag) {
                 custRetrunData.setAuthStatus(false);
                 custRetrunData.setStrReplyMessage("Vlan Validation Failed");
@@ -306,7 +310,7 @@ public class RadiusAuthImpl {
         }
 
         DBAuthenticationDriver dbAuthDrive = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        dbAuthDrive.populateAuthorizationDetails(custRetrunData);
+        dbAuthDrive.populateAuthorizationDetails(conn, custRetrunData);
         this.log.info(this.PACKET_IDENTIFIER + "[AUTHORIZE]basePlanExists:" + custRetrunData.isBasePlanExist());
         if (!custRetrunData.isBasePlanExist()) {
             custRetrunData.setAuthStatus(false);
@@ -314,12 +318,12 @@ public class RadiusAuthImpl {
             accessResponse.setPacketType(3);
             this.log.info(this.PACKET_IDENTIFIER + "[AUTHORIZE]AUTHORIZATION STATUS:FAILED, REASON:Base Plan Doesn't Exist");
         } else {
-            if (!this.isCustMacMapped(custRetrunData.getCustid()) && request.getAttribute(31) != null) {
-                this.mapCustMac(custRetrunData.getCustid(), request.getAttribute(31).getAttributeValue().toString());
+            if (!this.isCustMacMapped(conn, custRetrunData.getCustid()) && request.getAttribute(31) != null) {
+                this.mapCustMac(conn, custRetrunData.getCustid(), request.getAttribute(31).getAttributeValue().toString());
             }
 
-            if (!this.isVlanMapped(custRetrunData.getCustid()) && request.getAttribute(VLAN_RADIUS_PACK_ATTR) != null) {
-                this.mapCustVlan(custRetrunData.getCustid(), request.getAttribute(VLAN_RADIUS_PACK_ATTR).getAttributeValue().toString());
+            if (!this.isVlanMapped(conn, custRetrunData.getCustid()) && request.getAttribute(VLAN_RADIUS_PACK_ATTR) != null) {
+                this.mapCustVlan(conn, custRetrunData.getCustid(), request.getAttribute(VLAN_RADIUS_PACK_ATTR).getAttributeValue().toString());
             }
 
             this.log.debug(this.PACKET_IDENTIFIER + "Customer Data is  :" + custRetrunData.toString() + ":Quota Type:" + custRetrunData.getQuotatype() + ": Data Quota :" + custRetrunData.getUnusedquota() + ": Time Quota :" + custRetrunData.getTimequotaunused());
@@ -361,7 +365,7 @@ public class RadiusAuthImpl {
 
             this.log.info(this.PACKET_IDENTIFIER + "[AUTHORIZE]Quota Available:" + custRetrunData.isAuthStatus());
             if (custRetrunData.getServiceareaid() != null) {
-                dbAuthDrive.populateServiceAreaDetails(custRetrunData);
+                dbAuthDrive.populateServiceAreaDetails(conn, custRetrunData);
                 if (custRetrunData.getVLANID() != null && custRetrunData.getVLANID().length() > 0 && accessReqVlan != null && accessReqVlan.length() > 0) {
                     List<String> vlanIdList = Arrays.asList(custRetrunData.getVLANID().split(","));
                     Stream<String> var10001 = vlanIdList.stream();
@@ -386,11 +390,11 @@ public class RadiusAuthImpl {
         dbAuthDrive.populateAuthorizationDetails(custRetrunData);
     }
 
-    public void popuplateAccessResponseDetails(customerData custRetrunData) {
+    public void popuplateAccessResponseDetails(Connection conn, customerData custRetrunData) {
         DBAuthenticationDriver dbAuthDrive = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        dbAuthDrive.populatePoolName(custRetrunData);
-        dbAuthDrive.populateStaticIP(custRetrunData);
-        dbAuthDrive.populateRadiusProfiles(custRetrunData);
+        dbAuthDrive.populatePoolName(conn, custRetrunData);
+        dbAuthDrive.populateStaticIP(conn, custRetrunData);
+        dbAuthDrive.populateRadiusProfiles(conn, custRetrunData);
     }
 
     public void processReplyItem(RadiusPacket accessResponse, customerData custRetrunData, String strClientAddr, RadiusPacket accessRequest) {
@@ -871,46 +875,46 @@ public class RadiusAuthImpl {
         }
     }
 
-    public boolean isCustMacMapped(int custid) {
+    public boolean isCustMacMapped(Connection conn, int custid) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        boolean result = dbAuthDriver.findCustMacMapping(custid);
+        boolean result = dbAuthDriver.findCustMacMapping(conn, custid);
         return result;
     }
 
-    public void mapCustMac(int custid, String macAddress) {
+    public void mapCustMac(Connection conn, int custid, String macAddress) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        dbAuthDriver.setCustMacAddress(custid, macAddress);
+        dbAuthDriver.setCustMacAddress(conn, custid, macAddress);
     }
 
-    public int findCustMacMapping(String macAddress) {
+    public int findCustMacMapping(Connection conn, String macAddress) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        int custid = dbAuthDriver.findMacCustMapping(macAddress);
+        int custid = dbAuthDriver.findMacCustMapping(conn, macAddress);
         return custid;
     }
 
-    private customerData getCustomerFromCustid(int custid) {
+    private customerData getCustomerFromCustid(Connection conn, int custid) {
         DBAuthenticationDriver dbAuthDrive = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        return dbAuthDrive.getCustomerEntryFromCustid(custid);
+        return dbAuthDrive.getCustomerEntryFromCustid(conn, custid);
     }
 
-    private boolean validateMacBinding(customerData custReturnData, String macAddress) {
+    private boolean validateMacBinding(Connection conn, customerData custReturnData, String macAddress) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        return dbAuthDriver.validateMacBinding(custReturnData, macAddress);
+        return dbAuthDriver.validateMacBinding(conn, custReturnData, macAddress);
     }
 
-    private boolean validateVlanBinding(customerData custReturnData, String vlanId) {
+    private boolean validateVlanBinding(Connection conn, customerData custReturnData, String vlanId) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        return dbAuthDriver.validateVlanBinding(custReturnData, vlanId);
+        return dbAuthDriver.validateVlanBinding(conn, custReturnData, vlanId);
     }
 
-    public boolean isVlanMapped(int custid) {
+    public boolean isVlanMapped(Connection conn, int custid) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        return dbAuthDriver.findVlanMapping(custid);
+        return dbAuthDriver.findVlanMapping(conn, custid);
     }
 
-    public void mapCustVlan(int custid, String vlanId) {
+    public void mapCustVlan(Connection conn, int custid, String vlanId) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        dbAuthDriver.setCustVlan(custid, vlanId);
+        dbAuthDriver.setCustVlan(conn, custid, vlanId);
     }
 
     public RadiusAttribute getRadiusAttribute(String attributeName, String attributeValue) {
@@ -945,9 +949,9 @@ public class RadiusAuthImpl {
         return ra;
     }
 
-    public int findCustIPMapping(String ipAddress) {
+    public int findCustIPMapping(Connection conn, String ipAddress) {
         DBAuthenticationDriver dbAuthDriver = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-        return dbAuthDriver.findCustIPMapping(ipAddress);
+        return dbAuthDriver.findCustIPMapping(conn, ipAddress);
     }
 
     public String getUniqueNonRepeatingValue(String[] valueList, String currentVal) {

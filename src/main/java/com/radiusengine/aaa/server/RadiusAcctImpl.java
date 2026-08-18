@@ -10,10 +10,12 @@ import com.radiusengine.aaa.data.CDRData;
 import com.radiusengine.aaa.data.customerData;
 import com.radiusengine.aaa.db.DBAccountingDriver;
 import com.radiusengine.aaa.db.DBAuthenticationDriver;
+import com.radiusengine.aaa.db.DataSource;
 import com.radiusengine.aaa.util.RSAUtility;
 import com.radiusengine.aaa.workers.RecordAcctStartProcessor;
 import com.radiusengine.aaa.workers.RecordCDRProcessor;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -237,20 +239,22 @@ public class RadiusAcctImpl {
                             RadiusRecordCDRPool.getInstance().getExecutor().execute(new RecordCDRProcessor(this.request, this.acctFieldMapping, this.PACKET_IDENTIFIER, liveSessionData, custPackRelId));
                         } else {
                             this.log.info(this.PACKET_IDENTIFIER + "[INTERIM CALLED]");
-                            dbAccountingDrive.updateDBSesion(this.request, this.acctFieldMapping);
-                            String coaOperation = CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, AAAConstant.COAOPERATION).toString();
-                            if (custPackRelId != -1L && custPackRelId != -2L && !isUnlimitedQuota && !isSpeedDowngradeFUP) {
-                                ArrayList<CDRData> cdrList = dbAccountingDrive.getCustomerCoAStatus(this.request.getAttributeValue("User-Name"), custPackRelId);
-                                if (cdrList != null) {
-                                    this.log.info(this.PACKET_IDENTIFIER + "COA triggered");
-                                    cdrData = null;
+                            try (Connection conn = DataSource.getConnection()) {
+                                dbAccountingDrive.updateDBSesion(conn, this.request, this.acctFieldMapping);
+                                String coaOperation = CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, AAAConstant.COAOPERATION).toString();
+                                if (custPackRelId != -1L && custPackRelId != -2L && !isUnlimitedQuota && !isSpeedDowngradeFUP) {
+                                    ArrayList<CDRData> cdrList = dbAccountingDrive.getCustomerCoAStatus(conn, this.request.getAttributeValue("User-Name"), custPackRelId);
+                                    if (cdrList != null) {
+                                        this.log.info(this.PACKET_IDENTIFIER + "COA triggered");
+                                        cdrData = null;
 
-                                    for (CDRData cdr : cdrList) {
-                                        RadiusCOAPool.getCoaPool().getCOAExecutor().execute(new RadiusCoAProcessor(this.PACKET_IDENTIFIER, cdr, coaOperation));
+                                        for (CDRData cdr : cdrList) {
+                                            RadiusCOAPool.getCoaPool().getCOAExecutor().execute(new RadiusCoAProcessor(this.PACKET_IDENTIFIER, cdr, coaOperation));
+                                        }
                                     }
+                                } else {
+                                    this.log.info(this.PACKET_IDENTIFIER + "COA status check skipped::custPackRelId:" + custPackRelId + ",isUnlimitedQuota:" + isUnlimitedQuota + ",isSpeedDowngradeFUP:" + isSpeedDowngradeFUP);
                                 }
-                            } else {
-                                this.log.info(this.PACKET_IDENTIFIER + "COA status check skipped::custPackRelId:" + custPackRelId + ",isUnlimitedQuota:" + isUnlimitedQuota + ",isSpeedDowngradeFUP:" + isSpeedDowngradeFUP);
                             }
                         }
                     } else {

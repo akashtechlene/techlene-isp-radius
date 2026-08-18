@@ -36,10 +36,10 @@ public class DBAccountingDriver {
     private static String strLiveSessionInsert = "insert into tblliveuser(UserName,NASIPAddress,NASPort,ServiceType,FramedProtocol,FramedIPAddress,FramedIPNetmask,FramedRouting,FilterId,FramedMTU,FramedCompression,LoginIPHost,LoginService,LoginTCPPort,ReplyMessage,CallbackNumber,CallbackId,FramedRoute,FramedIPXNetwork,State,Class,VendorSpecific,SessionTimeout,IdleTimeout,TerminationAction,CalledStationId,CallingStationId,NASIdentifier,ProxyState,LoginLATService,LoginLATNode,LoginLATGroup,FramedAppleTalkLink,FramedAppleTalkNetwork,FramedAppleTalkZone,AcctStatusType,AcctDelayTime,AcctInputOctets,AcctOutputOctets,AcctSessionId,AcctAuthentic,AcctSessionTime,AcctInputPackets,AcctOutputPackets,AcctTerminateCause,AcctMultiSessionId,AcctLinkCount,AcctInputGigawords,AcctOutputGigawords,EventTimestamp,CHAPChallenge,NASPortType,PortLimit,LoginLATPort,AcctTunnelConnection,ARAPFeatures,ARAPZoneAccess,ARAPSecurity,ARAPSecurityData,PasswordRetry,Prompt,ConnectInfo,ConfigurationToken,EAPMessage,MessageAuthenticator,ARAPChallengeResponse,AcctInterimInterval,NASPortId,FramedPool,NASIPv6Address,FramedInterfaceId,FramedIPv6Prefix,LoginIPv6Host,FramedIPv6Route,FramedIPv6Pool,DigestResponse,DigestAttributes,DelegatedIPv6Prefix,FramedIPv6Address,DNSServerIPv6Address,RouteIPv6Information,DelegatedIPv6PrefixPool,StatefulIPv6AddressPool) values(:UserName,:NASIPAddress,:NASPort,:ServiceType,:FramedProtocol,:FramedIPAddress,:FramedIPNetmask,:FramedRouting,:FilterId,:FramedMTU,:FramedCompression,:LoginIPHost,:LoginService,:LoginTCPPort,:ReplyMessage,:CallbackNumber,:CallbackId,:FramedRoute,:FramedIPXNetwork,:State,:Class,:VendorSpecific,:SessionTimeout,:IdleTimeout,:TerminationAction,:CalledStationId,:CallingStationId,:NASIdentifier,:ProxyState,:LoginLATService,:LoginLATNode,:LoginLATGroup,:FramedAppleTalkLink,:FramedAppleTalkNetwork,:FramedAppleTalkZone,:AcctStatusType,:AcctDelayTime,:AcctInputOctets,:AcctOutputOctets,:AcctSessionId,:AcctAuthentic,:AcctSessionTime,:AcctInputPackets,:AcctOutputPackets,:AcctTerminateCause,:AcctMultiSessionId,:AcctLinkCount,:AcctInputGigawords,:AcctOutputGigawords,:EventTimestamp,:CHAPChallenge,:NASPortType,:PortLimit,:LoginLATPort,:AcctTunnelConnection,:ARAPFeatures,:ARAPZoneAccess,:ARAPSecurity,:ARAPSecurityData,:PasswordRetry,:Prompt,:ConnectInfo,:ConfigurationToken,:EAPMessage,:MessageAuthenticator,:ARAPChallengeResponse,:AcctInterimInterval,:NASPortId,:FramedPool,:NASIPv6Address,:FramedInterfaceId,:FramedIPv6Prefix,:LoginIPv6Host,:FramedIPv6Route,:FramedIPv6Pool,:DigestResponse,:DigestAttributes,:DelegatedIPv6Prefix,:FramedIPv6Address,:DNSServerIPv6Address,:RouteIPv6Information,:DelegatedIPv6PrefixPool,:StatefulIPv6AddressPool)";
     private static String strLiveSessionUpdate = "update tblliveuser set AcctInputOctets=?,AcctOutputOctets=?,AcctSessionTime=?,AcctInputPackets=?,AcctOutputPackets=?,AcctInputGigawords=?\n,AcctOutputGigawords=?,AcctStatusType=?,LAST_MODIFIED_DATE=?,FramedIPAddress=?,FramedIPv6Prefix=?,FramedInterfaceId=? where AcctSessionId=?";
     private static String strGetUsageFromCustName = "select AcctInputOctets,AcctOutputOctets,AcctInputGigawords,AcctOutputGigawords,AcctSessionTime,NASIPAddress,AcctSessionId,UserName,FramedIPAddress from tblliveuser where UserName=?;";
-    private static String strLiveUsageFromSessionId = "select * from tblliveuser where AcctSessionId=?;";
+    private static String strLiveUsageFromSessionId = "select AcctInputOctets,AcctOutputOctets,AcctSessionTime,NASIPAddress,AcctSessionId,UserName,FramedIPAddress from tblliveuser where AcctSessionId=?;";
     private static String strGetUsedQuotaFromCustPackageRelID = "select qtdtl.quotatype,qtdtl.quotaunit , qtdtl.timequotaunit , totalquotakb, usedquotakb, timetotalquotasec, timeusedquotasec,datacategory,mpp.plangroup,speeddowngradeflag from tblcustquotadtls as qtdtl  INNER JOIN tblcustpackagerel as packrel on qtdtl.custpackageid=packrel.custpackageid INNER JOIN tblmpostpaidplan as mpp on mpp.postpaidplanid=packrel.planid where qtdtl.custpackageid=?";
-    private static String strDuplicateStopCheck = "select * From $ACCT_CDR_TABLE_NAME t where UserName =? and AcctSessionId =? and lower(AcctStatusType) ='stop' and NASIPAddress =? and AcctSessionTime=?";
-    private static String strDuplicateStartCheck = "select * From tblliveuser t where UserName =? and NASIPAddress =? and FramedIPAddress =?";
+    private static String strDuplicateStopCheck = "select 1 From $ACCT_CDR_TABLE_NAME t where UserName =? and AcctSessionId =? and lower(AcctStatusType) ='stop' and NASIPAddress =? and AcctSessionTime=?";
+    private static String strDuplicateStartCheck = "select 1 From tblliveuser t where UserName =? and NASIPAddress =? and FramedIPAddress =?";
     static Logger log = LoggerFactory.getLogger("radiuslog");
 
     public DBAccountingDriver(String pACKET_IDENTIFIER) {
@@ -98,13 +98,22 @@ public class DBAccountingDriver {
     }
 
     public boolean insertCDR(AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping, CDRData liveuserData) throws Exception {
-        
+        try (Connection conn = DataSource.getConnection()) {
+            return insertCDR(conn, acctRequest, acctFieldMapping, liveuserData);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in insertCDR():" + e, e);
+            return true;
+        }
+    }
+
+    public boolean insertCDR(Connection conn, AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping, CDRData liveuserData) throws Exception {
+
         log.debug(this.PACKET_IDENTIFIER + "IN Insert CDR FROM DB QUERY:");
 
         NamedParameterStatement stmt = null;
         ResultSet rset = null;
         customerData custDBData = null;
-        try (Connection conn = DataSource.getConnection()) {
+        try {
             String cdrTable = "tblacctcdr_" + LocalDateTime.now().getYear() + "_" + LocalDateTime.now().getMonthValue();
             String cdrInsertSQL = null;
             if (liveuserData == null) {
@@ -148,9 +157,7 @@ public class DBAccountingDriver {
                 stmt.setString("createdate", liveuserData.getLastmodifiedddate().toString());
             }
 
-            synchronized (this) {
-                int var14 = stmt.executeUpdate();
-            }
+            int var14 = stmt.executeUpdate();
         } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in insertCDR():" + e, e);
         } finally {
@@ -218,12 +225,21 @@ public class DBAccountingDriver {
     }
 
     public boolean insertDBSesion(AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping) throws Exception {
+        try (Connection conn = DataSource.getConnection()) {
+            return insertDBSesion(conn, acctRequest, acctFieldMapping);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in insertDBSesion():" + e, e);
+            return true;
+        }
+    }
+
+    public boolean insertDBSesion(Connection conn, AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Insert Session QUERY" + strLiveSessionInsert + ", Mapping:" + acctFieldMapping.size());
 
         NamedParameterStatement stmt = null;
         ResultSet rset = null;
 
-        try (Connection conn = DataSource.getConnection()) {
+        try {
             stmt = new NamedParameterStatement(conn, strLiveSessionInsert);
             Iterator<Map.Entry<String, String>> itr = acctFieldMapping.entrySet().iterator();
             RadiusAttribute radAttrib = null;
@@ -270,13 +286,20 @@ public class DBAccountingDriver {
     }
 
     public boolean deleteDBSesion(String strSessionId, String strUsername) throws Exception {
+        try (Connection conn = DataSource.getConnection()) {
+            return deleteDBSesion(conn, strSessionId, strUsername);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "IN deleteDBSesion:" + e, e);
+            return true;
+        }
+    }
+
+    public boolean deleteDBSesion(Connection conn, String strSessionId, String strUsername) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Delete Session,Session Id:" + strSessionId + ",QUERY:" + strLiveSessionDelete);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strLiveSessionDelete);
             stmt.setString(1, strSessionId);
             stmt.setString(2, strUsername);
@@ -299,24 +322,26 @@ public class DBAccountingDriver {
             } catch (Exception var21) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var20) {
-            }
-
         }
 
         return true;
     }
 
     public boolean updateDBSesion(AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping) throws Exception {
+        try (Connection conn = DataSource.getConnection()) {
+            return updateDBSesion(conn, acctRequest, acctFieldMapping);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in updateDBSesion():" + e, e);
+            return true;
+        }
+    }
+
+    public boolean updateDBSesion(Connection conn, AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Update Session FROM QUERY" + strLiveSessionUpdate);
         long starttime = System.currentTimeMillis();
         ResultSet rset = null;
 
-        try (Connection conn = DataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(strLiveSessionUpdate)) {
+        try (PreparedStatement stmt = conn.prepareStatement(strLiveSessionUpdate)) {
             RadiusAttribute acctInputOctets = acctRequest.getAttribute("Acct-Input-Octets");
             RadiusAttribute acctOutputOctets = acctRequest.getAttribute("Acct-Output-Octets");
             RadiusAttribute acctSessionTime = acctRequest.getAttribute("Acct-Session-Time");
@@ -417,8 +442,16 @@ public class DBAccountingDriver {
     }
 
     public ArrayList<CDRData> getCustomerCoAStatus(String custName, Long custPackRelId) {
+        try (Connection conn = DataSource.getConnection()) {
+            return getCustomerCoAStatus(conn, custName, custPackRelId);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in getCustomerCoAStatus():" + e, e);
+            return null;
+        }
+    }
+
+    public ArrayList<CDRData> getCustomerCoAStatus(Connection conn, String custName, Long custPackRelId) {
         log.debug(this.PACKET_IDENTIFIER + "IN getCustomerCoAStatus() FROM DB :" + custName + ",QUERY " + strGetUsedQuotaFromCustPackageRelID);
-        Connection conn1 = null;
         PreparedStatement stmt1 = null;
         ResultSet rset1 = null;
         double usedQuotaBytes = 0.0;
@@ -430,8 +463,7 @@ public class DBAccountingDriver {
         boolean isFUPPlan = false;
 
         try {
-            conn1 = DataSource.getConnection();
-            stmt1 = conn1.prepareStatement(strGetUsedQuotaFromCustPackageRelID);
+            stmt1 = conn.prepareStatement(strGetUsedQuotaFromCustPackageRelID);
             stmt1.setLong(1, custPackRelId);
             rset1 = stmt1.executeQuery();
             if (rset1.next()) {
@@ -468,13 +500,6 @@ public class DBAccountingDriver {
             } catch (Exception var37) {
             }
 
-            try {
-                if (conn1 != null) {
-                    conn1.close();
-                }
-            } catch (Exception var36) {
-            }
-
         }
 
         log.info(this.PACKET_IDENTIFIER + "In getCustomerCoAStatus() isFUPPlan:" + isFUPPlan + ",bSpeedDowngraded:" + bSpeedDowngraded);
@@ -483,7 +508,7 @@ public class DBAccountingDriver {
             double totalLiveSessionBytes = 0.0;
             double totalLiveSessionslTime = 0.0;
 
-            ArrayList<CDRData> cdrList = this.getAllLiveSessions(custName);
+            ArrayList<CDRData> cdrList = this.getAllLiveSessions(conn, custName);
             CDRData cdrData;
             if (cdrList != null && cdrList.size() > 0) {
                 for(Iterator<CDRData> var23 = cdrList.iterator(); var23.hasNext(); totalLiveSessionslTime += cdrData.getTotalActualTime()) {
@@ -510,14 +535,20 @@ public class DBAccountingDriver {
     }
 
     public void populatePlanUsageDetails(Long custPackRelId, customerData custdata) {
+        try (Connection conn = DataSource.getConnection()) {
+            populatePlanUsageDetails(conn, custPackRelId, custdata);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error IN populatePlanUsageDetails() :" + e, e);
+        }
+    }
+
+    public void populatePlanUsageDetails(Connection conn, Long custPackRelId, customerData custdata) {
         log.debug(this.PACKET_IDENTIFIER + "IN populatePlanUsageDetails() FROM DB :" + custPackRelId + ",QUERY " + strGetUsedQuotaFromCustPackageRelID);
-        Connection conn1 = null;
         PreparedStatement stmt1 = null;
         ResultSet rset1 = null;
 
         try {
-            conn1 = DataSource.getConnection();
-            stmt1 = conn1.prepareStatement(strGetUsedQuotaFromCustPackageRelID);
+            stmt1 = conn.prepareStatement(strGetUsedQuotaFromCustPackageRelID);
             stmt1.setLong(1, custPackRelId);
             rset1 = stmt1.executeQuery();
             if (rset1.next()) {
@@ -554,13 +585,6 @@ public class DBAccountingDriver {
                     stmt1.close();
                 }
             } catch (Exception var22) {
-            }
-
-            try {
-                if (conn1 != null) {
-                    conn1.close();
-                }
-            } catch (Exception var21) {
             }
 
         }
@@ -621,8 +645,16 @@ public class DBAccountingDriver {
     }
 
     public ArrayList<CDRData> getAllLiveSessions(String userName) {
+        try (Connection conn = DataSource.getConnection()) {
+            return getAllLiveSessions(conn, userName);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in getAllLiveSessions():" + e, e);
+            return new ArrayList<>();
+        }
+    }
+
+    public ArrayList<CDRData> getAllLiveSessions(Connection conn, String userName) {
         log.debug(this.PACKET_IDENTIFIER + "IN getAllLiveSessions userName:" + userName + " QUERY " + strGetUsageFromCustName);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
         double totalActualBytes = 0.0;
@@ -631,7 +663,6 @@ public class DBAccountingDriver {
         ArrayList<CDRData> cdrList = new ArrayList();
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strGetUsageFromCustName);
             stmt.setString(1, userName);
             rset = stmt.executeQuery();
@@ -709,32 +740,32 @@ public class DBAccountingDriver {
             } catch (Exception var32) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var31) {
-            }
-
         }
 
         return cdrList;
     }
 
     public boolean isDupliacteStop(String userName, String SessionId, String NasIPAddress, String sessionTime) {
+        try (Connection conn = DataSource.getConnection()) {
+            return isDupliacteStop(conn, userName, SessionId, NasIPAddress, sessionTime);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "IN isDuplicateStop():" + e, e);
+            return false;
+        }
+    }
+
+    public boolean isDupliacteStop(Connection conn, String userName, String SessionId, String NasIPAddress, String sessionTime) {
 
         String cdrTable = "tblacctcdr_" + LocalDateTime.now().getYear() + "_" + LocalDateTime.now().getMonthValue();
         String duplicateStopCheckSQL = strDuplicateStopCheck.replace("$ACCT_CDR_TABLE_NAME", cdrTable);
 
         log.debug(this.PACKET_IDENTIFIER + "IN isDuplicateStop() userName:" + userName + ",SessionId:" + SessionId + ",NasIPAddress:" + NasIPAddress + ",sessionTime:" + sessionTime + ",QUERY " + duplicateStopCheckSQL);
 
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
         boolean recordExist = false;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(duplicateStopCheckSQL);
             stmt.setString(1, userName);
             stmt.setString(2, SessionId);
@@ -763,27 +794,27 @@ public class DBAccountingDriver {
             } catch (Exception var26) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var25) {
-            }
-
         }
 
         return recordExist;
     }
 
     public boolean isDupliacteStart(String userName, String NasIPAddress, String framedip) {
+        try (Connection conn = DataSource.getConnection()) {
+            return isDupliacteStart(conn, userName, NasIPAddress, framedip);
+        } catch (SQLException e) {
+            log.error("{} IN isDuplicateStart():{}", new Object[]{this.PACKET_IDENTIFIER, e, e});
+            return false;
+        }
+    }
+
+    public boolean isDupliacteStart(Connection conn, String userName, String NasIPAddress, String framedip) {
         log.debug(this.PACKET_IDENTIFIER + "IN isDupliacteStart() userName:{},NasIPAddress:{},framedip:{}", new Object[]{userName, NasIPAddress, framedip, strDuplicateStartCheck});
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
         boolean recordExist = false;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strDuplicateStartCheck);
             stmt.setString(1, userName);
             stmt.setString(2, NasIPAddress);
@@ -810,13 +841,6 @@ public class DBAccountingDriver {
                     stmt.close();
                 }
             } catch (Exception var23) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var22) {
             }
 
         }

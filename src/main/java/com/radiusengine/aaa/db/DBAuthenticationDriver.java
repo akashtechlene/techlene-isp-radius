@@ -28,7 +28,7 @@ public class DBAuthenticationDriver {
     private static String strCheckMacAddressQuery = "select custid,macaddress from tblcustmacmapping where is_deleted = 0 and custid = ?";
     private static String strCheckVlanQuery = "select custid,VLANID from tblcustomers where is_deleted = 0 and custid = ? and (VLANID is not null or VLANID != '')";
     private static String strRadiusAuthenticationResponse = "insert into tblauthresponse(username,replymessage,packettype,clientip,clientgroup) values(?,?,?,?,?)";
-    private static String strGetCustomerAttribute = "select * from tblcustattribs where custid=? and attribname=?";
+    private static String strGetCustomerAttribute = "select custattrid,attribname,attribvalue,custid from tblcustattribs where custid=? and attribname=?";
     private static String strRadiusAuthorization = "select pl.planid,pl.custpackageid,basepolicyname,baseuploadspeed,basedownloadspeed,baseparam1,baseparam2,baseparam3,thpolicyname,thuploadspeed,thdownloadspeed,thparam1,thparam2,thparam3,plangroup,datacategory,qt.quotatype,qt.quotaunit,totalquota,usedquota,totalquotakb,usedquotakb,timequotaunit,timetotalquota,timequotaused,timetotalquotasec,timeusedquotasec,pl.startdate,pl.enddate,pl.expirydate, TIMESTAMPDIFF(SECOND, sysdate(),expirydate) sessiontime, speeddowngradeflag  from tbl_qos_policy qp,TBLCUSTPACKAGEREL pl, tblcustquotadtls qt, tblmpostpaidplan mpp  where mpp.postpaidplanid=pl.planid and pl.qospolicyid =qp.id and pl.custpackageid=qt.custpackageid and lower(pl.service)='" + CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, AAAConstant.DATA_SERVICE_ID).toString() + "' and pl.custid=?  and (pl.enddate IS NULL OR  pl.enddate >= sysdate()) and pl.expirydate >= sysdate() and pl.startdate <= sysdate() order by pl.expirydate asc limit 1";
     public static String strRadiusAuthorizationWithDynamicAttribute = "select pl.planid,pl.custpackageid,basepolicyname,plangroup,datacategory,qt.quotatype,qt.quotaunit,totalquota,usedquota,totalquotakb,usedquotakb,timequotaunit,timetotalquota,timequotaused,timetotalquotasec,timeusedquotasec,pl.startdate,pl.enddate,pl.expirydate, TIMESTAMPDIFF(SECOND, sysdate(),expirydate) sessiontime , qp.id,speeddowngradeflag from tbl_qos_policy qp,TBLCUSTPACKAGEREL pl, tblcustquotadtls qt, tblmpostpaidplan mpp  where mpp.postpaidplanid=pl.planid and pl.qospolicyid =qp.id and pl.custpackageid=qt.custpackageid and lower(pl.service)='" + CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, "dataServiceId").toString() + "' and pl.custid=?  and (pl.enddate IS NULL OR  pl.enddate >= sysdate()) and pl.expirydate >= sysdate() and pl.startdate <= sysdate() order by pl.expirydate asc limit 1";
     private static String strGetActivePlanDetails = "select pl.planid,pl.custpackageid,basepolicyname,baseuploadspeed,basedownloadspeed,baseparam1,baseparam2,baseparam3,thpolicyname,thuploadspeed,thdownloadspeed,thparam1,thparam2,thparam3,plangroup,datacategory,qt.quotatype,qt.quotaunit,totalquota,usedquota,totalquotakb,usedquotakb,timequotaunit,timetotalquota,timequotaused,timetotalquotasec,timeusedquotasec,pl.startdate,pl.enddate,pl.expirydate, TIMESTAMPDIFF(SECOND, sysdate(),pl.expirydate) sessiontime   from tbl_qos_policy qp,TBLCUSTPACKAGEREL pl, tblcustquotadtls qt, tblmpostpaidplan mpp, tblcustomers c   where mpp.postpaidplanid=pl.planid and pl.qospolicyid =qp.id  and pl.custpackageid=qt.custpackageid  and pl.custid=c.custid and lower(pl.service)='" + CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, "dataServiceId").toString() + "' and (pl.enddate IS NULL OR  pl.enddate >= sysdate()) and pl.expirydate >= sysdate() and pl.startdate <= sysdate() and c.username=? and c.is_deleted=0 order by pl.expirydate desc limit 1";
@@ -53,7 +53,7 @@ public class DBAuthenticationDriver {
     private static String strqosPolicyQuery = "select basepolicyname,baseuploadspeed,basedownloadspeed,baseparam1,baseparam2,baseparam3,thpolicyname,thuploadspeed,thdownloadspeed,thparam1,thparam2,thparam3, totalquota,usedquota,plangroup,datacategory,plangroup from tbl_qos_policy qp,TBLCUSTPACKAGEREL pl, tblcustquotadtls qt, tblmpostpaidplan mpp  where mpp.postpaidplanid=pl.planid and pl.qospolicyid =qp.id and pl.custpackageid=qt.custpackageid and lower(pl.service)='" + CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, "dataServiceId").toString() + "' and pl.custid=?  and (pl.enddate IS NULL OR  pl.enddate >= sysdate()) and pl.expirydate >= sysdate() and pl.startdate <= sysdate() order by pl.expirydate asc limit 1;";
     private static String strCustomePackageRadiusPolicyQuery = "select radiusprofileid  from TBLCUSTPACKAGEREL pl, tblpostpaidplanradiusprofilerel radprof where radprof.POSTPAIDPLANID =pl.planid and pl.custpackageid=? ";
     private static String updatePasswordOnFirstLogin = "update tblcustomers set password = ? , setpasswordfromradiusflag = true where setpasswordfromradiusflag = false and is_deleted = false and username = ?";
-    private static String strCustomerServiceAreaDetialsQuery = "select * from tblservicearea where service_area_id=? and is_deleted=0";
+    private static String strCustomerServiceAreaDetialsQuery = "select vlan_id from tblservicearea where service_area_id=? and is_deleted=0";
     private static String strCustIPQuery = "select custid \n from tblcustchargedtls custcharges \n inner join tblcharges charges  on custcharges.chargeid = charges.CHARGEID and charges.chargecategory = '" + CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, "ipchargecategory").toString() + "' inner join tblippooldtls pooldtls on custcharges.ippooldtlsid = pooldtls.pool_details_id\n inner join tblipallocationdtls allocation on allocation.id = custcharges.purchase_entity_id and pooldtls.status = 'Allocated'\n where pooldtls.ip_address = ? and custcharges.enddate >= sysdate() and custcharges.is_reversed = 0  and custcharges.startdate <= sysdate() and allocation.is_released = 0\n";
     private static String strCustAttribUpdate = "update tblcustattribs set attribvalue=?,lastmodifieddate=sysdate() where custattrid=?";
     private static String strCustAttribInsert = "insert into tblcustattribs(custid,attribname,attribvalue) values(?,?,?)";
@@ -119,14 +119,22 @@ public class DBAuthenticationDriver {
     }
 
     public boolean validateMacBinding(customerData custPassedData, String macAddress) {
-        Connection conn = null;
+        try (Connection conn = DataSource.getConnection()) {
+            return validateMacBinding(conn, custPassedData, macAddress);
+        } catch (Exception e) {
+            log.error(this.PACKET_IDENTIFIER + "IN GET verifyMacAddress():" + e, e);
+            custPassedData.setMactelflag(true);
+            return true;
+        }
+    }
+
+    public boolean validateMacBinding(Connection conn, customerData custPassedData, String macAddress) {
         PreparedStatement stmt1 = null;
         ResultSet rset1 = null;
         boolean recordExists = false;
 
         try {
             log.debug(this.PACKET_IDENTIFIER + "IN GET verifyMacAddress CHECK FROM DB :" + custPassedData.getUsername() + " :QUERY: " + strCheckMacAddressQuery);
-            conn = DataSource.getConnection();
             stmt1 = conn.prepareStatement(strCheckMacAddressQuery);
             stmt1.setInt(1, custPassedData.getCustid());
             rset1 = stmt1.executeQuery();
@@ -159,13 +167,6 @@ public class DBAuthenticationDriver {
             } catch (Exception var27) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var26) {
-            }
-
         }
 
         if (!recordExists) {
@@ -179,14 +180,22 @@ public class DBAuthenticationDriver {
     }
 
     public boolean validateVlanBinding(customerData custPassedData, String vlan) {
-        Connection conn = null;
+        try (Connection conn = DataSource.getConnection()) {
+            return validateVlanBinding(conn, custPassedData, vlan);
+        } catch (Exception e) {
+            log.error(this.PACKET_IDENTIFIER + "IN GET validateVlanBinding():" + e, e);
+            custPassedData.setVlanEnable(true);
+            return true;
+        }
+    }
+
+    public boolean validateVlanBinding(Connection conn, customerData custPassedData, String vlan) {
         PreparedStatement stmt1 = null;
         ResultSet rset1 = null;
         boolean recordExists = false;
 
         try {
             log.debug(this.PACKET_IDENTIFIER + "IN GET validateVlanBinding CHECK FROM DB :" + custPassedData.getUsername() + " :QUERY: " + strCheckVlanQuery);
-            conn = DataSource.getConnection();
             stmt1 = conn.prepareStatement(strCheckVlanQuery);
             stmt1.setInt(1, custPassedData.getCustid());
             rset1 = stmt1.executeQuery();
@@ -219,13 +228,6 @@ public class DBAuthenticationDriver {
             } catch (Exception var27) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var26) {
-            }
-
         }
 
         if (!recordExists) {
@@ -239,14 +241,19 @@ public class DBAuthenticationDriver {
     }
 
     public customerData setPasswordOnFirstLogin(customerData custData, String strPassword, String username) {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
+        try (Connection conn = DataSource.getConnection()) {
+            return setPasswordOnFirstLogin(conn, custData, strPassword, username);
+        } catch (Exception e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in setPasswordOnFirstLogin:" + e, e);
+            return custData;
+        }
+    }
+
+    public customerData setPasswordOnFirstLogin(Connection conn, customerData custData, String strPassword, String username) {
         PreparedStatement stmt1 = null;
 
         try {
             log.debug(this.PACKET_IDENTIFIER + "IN SET setPasswordOnFirstLogin For Username :" + username + ":QUERY:" + updatePasswordOnFirstLogin);
-            conn = DataSource.getConnection();
             stmt1 = conn.prepareStatement(updatePasswordOnFirstLogin);
             stmt1.setString(1, strPassword);
             stmt1.setString(2, username);
@@ -257,31 +264,10 @@ public class DBAuthenticationDriver {
             log.error(this.PACKET_IDENTIFIER + "Error in setPasswordOnFirstLogin:" + e, e);
         } finally {
             try {
-                if (rset != null) {
-                    ((ResultSet)rset).close();
-                }
-            } catch (Exception var28) {
-            }
-
-            try {
-                if (stmt != null) {
-                    ((PreparedStatement)stmt).close();
-                }
-            } catch (Exception var27) {
-            }
-
-            try {
                 if (stmt1 != null) {
                     stmt1.close();
                 }
             } catch (Exception var26) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var25) {
             }
 
         }
@@ -290,11 +276,23 @@ public class DBAuthenticationDriver {
     }
 
     public customerData authenticateCustomer(customerData custPassedData) {
+        try (Connection conn = DataSource.getConnection()) {
+            return authenticateCustomer(conn, custPassedData);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "error in authenticateCustomer():" + e, e);
+            customerData custDBData = new customerData();
+            custDBData.setAuthStatus(false);
+            custDBData.setStrReplyMessage("Authentication Fail.Username Not Found - \"" + custPassedData.getUsername() + '"');
+            return custDBData;
+        }
+    }
+
+    public customerData authenticateCustomer(Connection conn, customerData custPassedData) {
         customerData custDBData = new customerData();
 
         try {
             custDBData.setAuthStatus(false);
-            custDBData = this.getDBCustomer(custPassedData.getUsername());
+            custDBData = this.getDBCustomer(conn, custPassedData.getUsername());
             if (custDBData == null) {
                 custDBData = new customerData();
                 custDBData.setAuthStatus(false);
@@ -338,8 +336,15 @@ public class DBAuthenticationDriver {
         }
     }
 
-    public synchronized void populateAuthorizationDetails(customerData custPassedData) {
-        Connection conn = null;
+    public void populateAuthorizationDetails(customerData custPassedData) {
+        try (Connection conn = DataSource.getConnection()) {
+            populateAuthorizationDetails(conn, custPassedData);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in populateAuthorizationDetails():" + e, e);
+        }
+    }
+
+    public void populateAuthorizationDetails(Connection conn, customerData custPassedData) {
         PreparedStatement stmt = null;
         ResultSet rset = null;
         PreparedStatement stmt1 = null;
@@ -349,7 +354,6 @@ public class DBAuthenticationDriver {
 
         try {
             log.debug(this.PACKET_IDENTIFIER + "IN GET populateAuthorizationDetails BASE PLAN CHECK FROM DB :" + custPassedData.getCustid() + ":QUERY:" + strCheckBasePlanExists);
-            conn = DataSource.getConnection();
             stmt1 = conn.prepareStatement(strCheckBasePlanExists);
             stmt1.setInt(1, custPassedData.getCustid());
             rset1 = stmt1.executeQuery();
@@ -585,25 +589,24 @@ public class DBAuthenticationDriver {
             } catch (Exception var54) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var53) {
-            }
-
         }
 
     }
 
     public void populatePoolName(customerData custPassedData) {
+        try (Connection conn = DataSource.getConnection()) {
+            populatePoolName(conn, custPassedData);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in populatePoolName():" + e, e);
+        }
+    }
+
+    public void populatePoolName(Connection conn, customerData custPassedData) {
         log.debug(this.PACKET_IDENTIFIER + "IN GET populatePoolName FROM DB :" + custPassedData.getCustid() + ":QUERY:" + strPoolNameFromPoolId);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strPoolNameFromPoolId);
             stmt.setInt(1, custPassedData.getPoolId());
             rset = stmt.executeQuery();
@@ -629,25 +632,24 @@ public class DBAuthenticationDriver {
             } catch (Exception var20) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var19) {
-            }
-
         }
 
     }
 
     public void populateStaticIP(customerData custPassedData) {
+        try (Connection conn = DataSource.getConnection()) {
+            populateStaticIP(conn, custPassedData);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in populateStaticIP():" + e, e);
+        }
+    }
+
+    public void populateStaticIP(Connection conn, customerData custPassedData) {
         log.debug(this.PACKET_IDENTIFIER + "IN GET populateStaticIP FROM DB :" + custPassedData.getCustid() + " :QUERY: " + strStaticIPQueryNew);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strStaticIPQueryNew);
             stmt.setInt(1, custPassedData.getCustid());
             rset = stmt.executeQuery();
@@ -672,20 +674,21 @@ public class DBAuthenticationDriver {
             } catch (Exception var20) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var19) {
-            }
-
         }
 
     }
 
     public customerData getDBCustomer(String strUsername) throws Exception {
+        try (Connection conn = DataSource.getConnection()) {
+            return getDBCustomer(conn, strUsername);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in GETCUSTOMER FROM DB :" + e, e);
+            return null;
+        }
+    }
+
+    public customerData getDBCustomer(Connection conn, String strUsername) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN GET CUSTOMER FROM DB :" + strUsername + ":QUERY:" + strRadiusCustomerQuery);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
         Connection conn1 = null;
@@ -694,7 +697,6 @@ public class DBAuthenticationDriver {
         customerData custDBData = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strRadiusCustomerQuery);
             stmt.setString(1, strUsername.trim());
             rset = stmt.executeQuery();
@@ -737,13 +739,6 @@ public class DBAuthenticationDriver {
                     stmt.close();
                 }
             } catch (Exception var36) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var35) {
             }
 
             try {
@@ -829,13 +824,19 @@ public class DBAuthenticationDriver {
     }
 
     public void updateQuota(Double totalActual, long totalActualKb, long totalActualTime, long sessiontime, int custid, String strQuotaUnit, String strQuotaUnitTime, long custpackageid, boolean bBWDowndgraded) throws Exception {
+        try (Connection conn = DataSource.getConnection()) {
+            updateQuota(conn, totalActual, totalActualKb, totalActualTime, sessiontime, custid, strQuotaUnit, strQuotaUnitTime, custpackageid, bBWDowndgraded);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in UpdateQuota():" + e, e);
+        }
+    }
+
+    public void updateQuota(Connection conn, Double totalActual, long totalActualKb, long totalActualTime, long sessiontime, int custid, String strQuotaUnit, String strQuotaUnitTime, long custpackageid, boolean bBWDowndgraded) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Update updateQuota FROM DB :" + custid + ",custpackageid:" + custpackageid);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             if (bBWDowndgraded) {
                 log.debug(this.PACKET_IDENTIFIER + "IN Update updateQuota FROM DB :" + custid + ",custpackageid:" + custpackageid + " QUERY" + strRadiusUpdateQuotaWithBWFlag);
                 stmt = conn.prepareStatement(strRadiusUpdateQuotaWithBWFlag);
@@ -912,13 +913,6 @@ public class DBAuthenticationDriver {
             } catch (Exception var32) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var31) {
-            }
-
         }
 
     }
@@ -937,9 +931,7 @@ public class DBAuthenticationDriver {
             stmt.setString(3, (String)hsAuthRes.get("packettype"));
             stmt.setString(4, (String)hsAuthRes.get(AAAConstant.CLIENTIP));
             stmt.setString(5, (String)hsAuthRes.get("clientgroup"));
-            synchronized(this) {
-                int var6 = stmt.executeUpdate();
-            }
+            int var6 = stmt.executeUpdate();
         } catch (SQLException var26) {
             SQLException e = var26;
             log.error(this.PACKET_IDENTIFIER + "Error in Insert Auth Response in DB :" + e, e);
@@ -971,14 +963,21 @@ public class DBAuthenticationDriver {
     }
 
     public boolean findCustMacMapping(int custid) {
+        try (Connection conn = DataSource.getConnection()) {
+            return findCustMacMapping(conn, custid);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in find CUST MAC mapping in DB :" + e, e);
+            return false;
+        }
+    }
+
+    public boolean findCustMacMapping(Connection conn, int custid) {
         log.debug(this.PACKET_IDENTIFIER + "IN find CUST MAC mapping in DB :" + custid);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         boolean var28;
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strFindCustMacMappingQuery);
             stmt.setInt(1, custid);
             rset = stmt.executeQuery();
@@ -1006,26 +1005,26 @@ public class DBAuthenticationDriver {
             } catch (Exception var24) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var23) {
-            }
-
         }
 
         return var28;
     }
 
     public boolean findVlanMapping(int custid) {
+        try (Connection conn = DataSource.getConnection()) {
+            return findVlanMapping(conn, custid);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in find CUST MAC mapping in DB :" + e, e);
+            return false;
+        }
+    }
+
+    public boolean findVlanMapping(Connection conn, int custid) {
         log.debug(this.PACKET_IDENTIFIER + "IN find CUST Vlan mapping in DB :" + custid);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strFindVlanCustMappingQuery);
             stmt.setInt(1, custid);
             rset = stmt.executeQuery();
@@ -1051,26 +1050,26 @@ public class DBAuthenticationDriver {
             } catch (Exception var24) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var23) {
-            }
-
         }
 
         return false;
     }
 
     public int findMacCustMapping(String macAddress) {
+        try (Connection conn = DataSource.getConnection()) {
+            return findMacCustMapping(conn, macAddress);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error IN find CUST MAC mapping in DB :" + e, e);
+            return 0;
+        }
+    }
+
+    public int findMacCustMapping(Connection conn, String macAddress) {
         log.debug(this.PACKET_IDENTIFIER + "IN find MAC CUST mapping in DB :" + macAddress);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strFindMacCustMappingQuery);
             stmt.setString(1, macAddress);
             rset = stmt.executeQuery();
@@ -1096,26 +1095,24 @@ public class DBAuthenticationDriver {
             } catch (Exception var24) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var23) {
-            }
-
         }
 
         return 0;
     }
 
     public void setCustMacAddress(int custid, String macAddress) {
+        try (Connection conn = DataSource.getConnection()) {
+            setCustMacAddress(conn, custid, macAddress);
+        } catch (SQLException e) {
+            log.debug(this.PACKET_IDENTIFIER + "Error IN Insert Customer MAC Mapping in DB :" + e, e);
+        }
+    }
+
+    public void setCustMacAddress(Connection conn, int custid, String macAddress) {
         log.debug(this.PACKET_IDENTIFIER + "IN Insert Customer MAC Mapping in DB :" + custid + "-" + macAddress + "QUERY" + strAddCustMacMapping);
-        Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strAddCustMacMapping);
             stmt.setInt(1, custid);
             stmt.setString(2, macAddress);
@@ -1125,24 +1122,10 @@ public class DBAuthenticationDriver {
             log.debug(this.PACKET_IDENTIFIER + "Error IN Insert Customer MAC Mapping in DB :" + e, e);
         } finally {
             try {
-                if (rset != null) {
-                    ((ResultSet)rset).close();
-                }
-            } catch (Exception var22) {
-            }
-
-            try {
                 if (stmt != null) {
                     stmt.close();
                 }
             } catch (Exception var21) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var20) {
             }
 
         }
@@ -1150,13 +1133,18 @@ public class DBAuthenticationDriver {
     }
 
     public void setCustVlan(int custid, String vlanId) {
+        try (Connection conn = DataSource.getConnection()) {
+            setCustVlan(conn, custid, vlanId);
+        } catch (SQLException e) {
+            log.debug(this.PACKET_IDENTIFIER + "Error IN Update Customer Vlan in DB :" + e, e);
+        }
+    }
+
+    public void setCustVlan(Connection conn, int custid, String vlanId) {
         log.debug(this.PACKET_IDENTIFIER + "IN Update Customer Vlan Mapping in DB :" + custid + "-" + vlanId + "QUERY" + strAddCustVlanMapping);
-        Connection conn = null;
         PreparedStatement stmt = null;
-        ResultSet rset = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strAddCustVlanMapping);
             stmt.setString(1, vlanId);
             stmt.setInt(2, custid);
@@ -1166,24 +1154,10 @@ public class DBAuthenticationDriver {
             log.debug(this.PACKET_IDENTIFIER + "Error IN Update Customer Vlan in DB :" + e, e);
         } finally {
             try {
-                if (rset != null) {
-                    ((ResultSet)rset).close();
-                }
-            } catch (Exception var22) {
-            }
-
-            try {
                 if (stmt != null) {
                     stmt.close();
                 }
             } catch (Exception var21) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var20) {
             }
 
         }
@@ -1191,14 +1165,21 @@ public class DBAuthenticationDriver {
     }
 
     public customerData getCustomerEntryFromCustid(int custid) {
+        try (Connection conn = DataSource.getConnection()) {
+            return getCustomerEntryFromCustid(conn, custid);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error IN GET CUSTOMER FROM CUST ID IN DB :" + e, e);
+            return null;
+        }
+    }
+
+    public customerData getCustomerEntryFromCustid(Connection conn, int custid) {
         log.debug(this.PACKET_IDENTIFIER + "IN GET CUSTOMER FROM CUST ID IN DB :" + custid + ":QUERY:" + strRadiusFindCustomerCustidQuery);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
         customerData custDBData = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strRadiusFindCustomerCustidQuery);
             stmt.setInt(1, custid);
             rset = stmt.executeQuery();
@@ -1224,13 +1205,6 @@ public class DBAuthenticationDriver {
                     stmt.close();
                 }
             } catch (Exception var21) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var20) {
             }
 
         }
@@ -1772,15 +1746,21 @@ public class DBAuthenticationDriver {
     }
 
     public void populateRadiusProfiles(customerData custPassedData) {
+        try (Connection conn = DataSource.getConnection()) {
+            populateRadiusProfiles(conn, custPassedData);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error IN GET populateRadiusProfiles()" + e, e);
+        }
+    }
+
+    public void populateRadiusProfiles(Connection conn, customerData custPassedData) {
         log.debug(this.PACKET_IDENTIFIER + "IN GET populateRadiusProfiles FROM DB :" + custPassedData.getCustid() + ":QUERY:" + strCustomePackageRadiusPolicyQuery);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         try {
             SQLException e;
             try {
-                conn = DataSource.getConnection();
                 stmt = conn.prepareStatement(strCustomePackageRadiusPolicyQuery);
                 stmt.setInt(1, custPassedData.getCustPlanRelId());
                 rset = stmt.executeQuery();
@@ -1816,20 +1796,20 @@ public class DBAuthenticationDriver {
             } catch (Exception var20) {
             }
 
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var19) {
-            }
-
         }
 
     }
 
     public void populateServiceAreaDetails(customerData customerData) {
+        try (Connection conn = DataSource.getConnection()) {
+            populateServiceAreaDetails(conn, customerData);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error in populateServiceAreaDetails FROM DB :" + e, e);
+        }
+    }
+
+    public void populateServiceAreaDetails(Connection conn, customerData customerData) {
         log.debug(this.PACKET_IDENTIFIER + "IN GET populateServiceAreaDetails FROM DB :" + customerData.getCustid() + ",servicearea:" + customerData.getServiceareaid() + ",QUERY:" + strCustomerServiceAreaDetialsQuery);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
         Connection conn1 = null;
@@ -1837,7 +1817,6 @@ public class DBAuthenticationDriver {
         ResultSet rset1 = null;
 
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strCustomerServiceAreaDetialsQuery);
             stmt.setInt(1, customerData.getServiceareaid());
             rset = stmt.executeQuery();
@@ -1860,13 +1839,6 @@ public class DBAuthenticationDriver {
                     stmt.close();
                 }
             } catch (Exception var35) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var34) {
             }
 
             try {
@@ -1895,14 +1867,21 @@ public class DBAuthenticationDriver {
     }
 
     public int findCustIPMapping(String ipAddress) {
+        try (Connection conn = DataSource.getConnection()) {
+            return findCustIPMapping(conn, ipAddress);
+        } catch (SQLException e) {
+            log.error(this.PACKET_IDENTIFIER + "Error IN findCustIPMapping in DB :" + e, e);
+            return 0;
+        }
+    }
+
+    public int findCustIPMapping(Connection conn, String ipAddress) {
         log.debug(this.PACKET_IDENTIFIER + "IN findCustIPMapping in DB :" + ipAddress);
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rset = null;
 
         int var28;
         try {
-            conn = DataSource.getConnection();
             stmt = conn.prepareStatement(strCustIPQuery);
             stmt.setString(1, ipAddress);
             rset = stmt.executeQuery();
@@ -1928,13 +1907,6 @@ public class DBAuthenticationDriver {
                     stmt.close();
                 }
             } catch (Exception var24) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var23) {
             }
 
         }

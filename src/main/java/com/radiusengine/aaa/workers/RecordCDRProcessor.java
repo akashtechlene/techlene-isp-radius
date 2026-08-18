@@ -10,6 +10,8 @@ import com.radiusengine.aaa.data.CDRData;
 import com.radiusengine.aaa.data.customerData;
 import com.radiusengine.aaa.db.DBAccountingDriver;
 import com.radiusengine.aaa.db.DBAuthenticationDriver;
+import com.radiusengine.aaa.db.DataSource;
+import java.sql.Connection;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,14 +69,15 @@ public class RecordCDRProcessor implements Runnable {
                 acctSessionTime = null;
             }
 
-            if (!driver.isDupliacteStop(strUsername, sessionId, nasIP, acctSessionTime)) {
+            try (Connection conn = DataSource.getConnection()) {
+            if (!driver.isDupliacteStop(conn, strUsername, sessionId, nasIP, acctSessionTime)) {
 
-                driver.insertCDR(this.acctRequest, this.acctFieldMapping, this.liveSessionData);
+                driver.insertCDR(conn, this.acctRequest, this.acctFieldMapping, this.liveSessionData);
 
                 if (this.custPackId != -1L) {
 
                     log.info(this.PACKET_IDENTIFIER + "[STOP CALLED]");
-                    driver.deleteDBSesion(this.acctRequest.getAttributeValue("Acct-Session-Id"), this.acctRequest.getAttributeValue("User-Name"));
+                    driver.deleteDBSesion(conn, this.acctRequest.getAttributeValue("Acct-Session-Id"), this.acctRequest.getAttributeValue("User-Name"));
                     if (this.acctRequest.getAttribute(89) != null) {
                         strUsername = this.acctRequest.getAttributeValue("Chargeable-User-Identity");
                     } else {
@@ -83,11 +86,11 @@ public class RecordCDRProcessor implements Runnable {
 
                     strUsername = strUsername != null ? strUsername.trim() : null;
                     DBAuthenticationDriver dbAuth = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-                    customerData custRetrunData = dbAuth.getDBCustomer(strUsername);
+                    customerData custRetrunData = dbAuth.getDBCustomer(conn, strUsername);
                     log.debug(this.PACKET_IDENTIFIER + "custReturnData  :" + custRetrunData);
                     if (custRetrunData != null) {
                         DBAccountingDriver dbAcct = new DBAccountingDriver(this.PACKET_IDENTIFIER);
-                        dbAcct.populatePlanUsageDetails(this.custPackId, custRetrunData);
+                        dbAcct.populatePlanUsageDetails(conn, this.custPackId, custRetrunData);
                         log.debug(this.PACKET_IDENTIFIER + "Customer Data is  :" + custRetrunData.toString());
                         long download = 0L;
                         long upload = 0L;
@@ -183,7 +186,7 @@ public class RecordCDRProcessor implements Runnable {
 
                         log.debug(this.PACKET_IDENTIFIER + "custReturnData:" + custRetrunData);
                         log.debug(this.PACKET_IDENTIFIER + "bBWDowndgraded:" + bBWDowndgraded);
-                        dbAuth.updateQuota(totalSessionActualBytes, totalSessionActualKb, totalSessionActualTime, sessiontime, custRetrunData.getCustid(), strQuotaUnit, strQuotaUnitTime, this.custPackId, bBWDowndgraded);
+                        dbAuth.updateQuota(conn, totalSessionActualBytes, totalSessionActualKb, totalSessionActualTime, sessiontime, custRetrunData.getCustid(), strQuotaUnit, strQuotaUnitTime, this.custPackId, bBWDowndgraded);
                     } else {
                         log.info(this.PACKET_IDENTIFIER + "OOPS Customer not found...");
                     }
@@ -192,6 +195,7 @@ public class RecordCDRProcessor implements Runnable {
                 }
             } else {
                 log.info(this.PACKET_IDENTIFIER + "dropping the duplicate Stop");
+            }
             }
         } catch (Exception e) {
             log.error(this.PACKET_IDENTIFIER + "Error IN GET RecordCDRProcessor()" + e, e);

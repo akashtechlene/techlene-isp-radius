@@ -146,14 +146,10 @@ public class CachingConfigurations {
 
     private void cacheClient(Cache cacheClient, Cache cacheClientReply) {
         Connection conn = null;
-        Connection conn1 = null;
-        Connection conn2 = null;
         PreparedStatement stmt = null;
         PreparedStatement stmt1 = null;
-        PreparedStatement stmt2 = null;
         ResultSet rset = null;
         ResultSet rset1 = null;
-        ResultSet rset2 = null;
 
         try {
             if (rset != null) {
@@ -182,10 +178,6 @@ public class CachingConfigurations {
                     stmt1.close();
                 }
 
-                if (conn1 != null) {
-                    conn1.close();
-                }
-
                 clientData clientData = new clientData();
                 clientData.setClientip(rset.getString(AAAConstant.CLIENTIP));
                 clientData.setSharedkey(rset.getString(AAAConstant.SHAREDKEY));
@@ -193,8 +185,7 @@ public class CachingConfigurations {
                 clientData.setTimeout(rset.getString(AAAConstant.CLIENTTIMEOUT));
                 clientData.setGroupname(rset.getString("name"));
                 clientData.setIptype(rset.getString("iptype"));
-                conn1 = DataSource.getConnection();
-                stmt1 = conn1.prepareStatement(strClientReplyQuery);
+                stmt1 = conn.prepareStatement(strClientReplyQuery);
                 stmt1.setInt(1, rset.getInt(AAAConstant.CLIENTID));
                 rset1 = stmt1.executeQuery();
                 ConcurrentHashMap<String, String> clientReply = new ConcurrentHashMap();
@@ -246,48 +237,16 @@ public class CachingConfigurations {
             } catch (Exception var49) {
             }
 
-            try {
-                if (conn1 != null) {
-                    conn1.close();
-                }
-            } catch (Exception var48) {
-            }
-
-            try {
-                if (rset2 != null) {
-                    ((ResultSet)rset2).close();
-                }
-            } catch (Exception var47) {
-            }
-
-            try {
-                if (stmt2 != null) {
-                    ((PreparedStatement)stmt2).close();
-                }
-            } catch (Exception var46) {
-            }
-
-            try {
-                if (conn2 != null) {
-                    ((Connection)conn2).close();
-                }
-            } catch (Exception var45) {
-            }
-
         }
 
     }
 
     private void cacheAcctProfile(Cache cacheAcctProfile) {
         Connection conn = null;
-        Connection conn1 = null;
-        Connection conn2 = null;
         PreparedStatement stmt = null;
         PreparedStatement stmt1 = null;
-        PreparedStatement stmt2 = null;
         ResultSet rset = null;
         ResultSet rset1 = null;
-        ResultSet rset2 = null;
 
         try {
             if (rset != null) {
@@ -325,12 +284,7 @@ public class CachingConfigurations {
                     stmt1.close();
                 }
 
-                if (conn1 != null) {
-                    conn1.close();
-                }
-
-                conn1 = DataSource.getConnection();
-                stmt1 = conn1.prepareStatement(strDBCDRMapping);
+                stmt1 = conn.prepareStatement(strDBCDRMapping);
                 this.log.debug("Executing : " + strDBCDRMapping + "For Id" + rset.getInt("mappingmasterid"));
                 stmt1.setInt(1, rset.getInt("mappingmasterid"));
                 rset1 = stmt1.executeQuery();
@@ -383,42 +337,12 @@ public class CachingConfigurations {
             } catch (Exception var49) {
             }
 
-            try {
-                if (conn1 != null) {
-                    conn1.close();
-                }
-            } catch (Exception var48) {
-            }
-
-            try {
-                if (rset2 != null) {
-                    ((ResultSet)rset2).close();
-                }
-            } catch (Exception var47) {
-            }
-
-            try {
-                if (stmt2 != null) {
-                    ((PreparedStatement)stmt2).close();
-                }
-            } catch (Exception var46) {
-            }
-
-            try {
-                if (conn2 != null) {
-                    ((Connection)conn2).close();
-                }
-            } catch (Exception var45) {
-            }
-
         }
 
     }
 
     private void cacheRadiusProfile(Cache cacheGroup) {
         Connection conn = null;
-        Connection conn1 = null;
-        Connection conn2 = null;
         PreparedStatement stmt = null;
         PreparedStatement stmt1 = null;
         PreparedStatement stmt2 = null;
@@ -455,12 +379,7 @@ public class CachingConfigurations {
                     stmt1.close();
                 }
 
-                if (conn1 != null) {
-                    conn1.close();
-                }
-
-                conn1 = DataSource.getConnection();
-                stmt1 = conn1.prepareStatement(strRadiusProfileCheckQuery);
+                stmt1 = conn.prepareStatement(strRadiusProfileCheckQuery);
                 this.log.debug("Executing : " + strRadiusProfileCheckQuery);
                 stmt1.setInt(1, rset.getInt("radiusprofileid"));
                 rset1 = stmt1.executeQuery();
@@ -474,16 +393,10 @@ public class CachingConfigurations {
                         stmt2.close();
                     }
 
-                    if (conn2 != null) {
-                        conn2.close();
-                    }
-
                     ConcurrentHashMap profileReply = new ConcurrentHashMap();
                     this.log.debug("Executed radiuscheckitmid:" + rset1.getInt("radiuscheckitmid"));
                     this.log.debug("Executing : " + strRadiusProfileReplyQuery);
-                    conn2 = DataSource.getConnection();
-                    this.log.debug("Got Connection");
-                    stmt2 = conn2.prepareStatement(strRadiusProfileReplyQuery);
+                    stmt2 = conn.prepareStatement(strRadiusProfileReplyQuery);
                     stmt2.setInt(1, rset1.getInt("radiuscheckitmid"));
                     rset2 = stmt2.executeQuery();
 
@@ -543,13 +456,6 @@ public class CachingConfigurations {
             }
 
             try {
-                if (conn1 != null) {
-                    conn1.close();
-                }
-            } catch (Exception var49) {
-            }
-
-            try {
                 if (rset2 != null) {
                     rset2.close();
                 }
@@ -561,13 +467,6 @@ public class CachingConfigurations {
                     stmt2.close();
                 }
             } catch (Exception var47) {
-            }
-
-            try {
-                if (conn2 != null) {
-                    conn2.close();
-                }
-            } catch (Exception var46) {
             }
 
         }

@@ -7,7 +7,9 @@ package com.radiusengine.aaa.workers;
 
 import com.radiusengine.aaa.constant.AAAConstant;
 import com.radiusengine.aaa.db.DBAccountingDriver;
+import com.radiusengine.aaa.db.DataSource;
 import com.radiusengine.aaa.server.CachingConfigurations;
+import java.sql.Connection;
 import java.util.concurrent.ConcurrentHashMap;
 import net.sf.ehcache.Cache;
 import org.slf4j.Logger;
@@ -72,15 +74,17 @@ public class RecordAcctStartProcessor implements Runnable {
                 enableDuplicateCheck = false;
             }
 
-            boolean bInsertLiveUser = true;
-            if (enableDuplicateCheck && driver.isDupliacteStart(strUsername, nasIP, framedIPAddress)) {
-                bInsertLiveUser = false;
-            }
+            try (Connection conn = DataSource.getConnection()) {
+                boolean bInsertLiveUser = true;
+                if (enableDuplicateCheck && driver.isDupliacteStart(conn, strUsername, nasIP, framedIPAddress)) {
+                    bInsertLiveUser = false;
+                }
 
-            if (bInsertLiveUser) {
-                driver.insertDBSesion(this.acctRequest, this.acctFieldMapping);
-            } else {
-                log.info(this.PACKET_IDENTIFIER + "dropping the duplicate start,enableDuplicateCheck:{} ", enableDuplicateCheck);
+                if (bInsertLiveUser) {
+                    driver.insertDBSesion(conn, this.acctRequest, this.acctFieldMapping);
+                } else {
+                    log.info(this.PACKET_IDENTIFIER + "dropping the duplicate start,enableDuplicateCheck:{} ", enableDuplicateCheck);
+                }
             }
         } catch (Exception e) {
             log.error(this.PACKET_IDENTIFIER + "Error IN GET RecordAcctStartProcessor()" + e, e);
