@@ -1,7 +1,7 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+/**
+ * @author Akash Gaur
+ * @created year 2026
+ */
 
 package com.radiusengine.aaa.server;
 
@@ -96,7 +96,7 @@ public class RadiusAuthImpl {
             boolean acceptAll = false;
 
             try {
-                acceptAll = Boolean.parseBoolean(cacheServerAttribe.get("accept_all").getObjectValue().toString());
+                acceptAll = Boolean.parseBoolean(cacheServerAttribe.get(AAAConstant.ACCEPT_ALL).getObjectValue().toString());
             } catch (Exception var14) {
                 acceptAll = false;
             }

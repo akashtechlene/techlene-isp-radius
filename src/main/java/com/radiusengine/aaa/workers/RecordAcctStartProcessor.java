@@ -1,7 +1,7 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+/**
+ * @author Akash Gaur
+ * @created year 2026
+ */
 
 package com.radiusengine.aaa.workers;
 
@@ -69,7 +69,7 @@ public class RecordAcctStartProcessor implements Runnable {
             try {
                 CachingConfigurations cacheConfig = CachingConfigurations.getInstance();
                 Cache cache = CachingConfigurations.getCacheManagerData().getCache(AAAConstant.SERVERCACHING);
-                enableDuplicateCheck = Boolean.valueOf(cache.get("enable_duplicate_start_check").getObjectValue().toString());
+                enableDuplicateCheck = Boolean.valueOf(cache.get(AAAConstant.ENABLE_DUPLICATE_START_CHECK).getObjectValue().toString());
             } catch (Exception var9) {
                 enableDuplicateCheck = false;
             }

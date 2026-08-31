@@ -1,7 +1,7 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+/**
+ * @author Akash Gaur
+ * @created year 2026
+ */
 
 package com.radiusengine.aaa.server;
 
@@ -69,42 +69,42 @@ public class CachingConfigurations {
             cacheServer.put(new Element(AAAConstant.SERVERIP, prop.getProperty(AAAConstant.SERVERIP)));
             cacheServer.put(new Element(AAAConstant.WEBSERVICEIP, prop.getProperty(AAAConstant.WEBSERVICEIP)));
             cacheServer.put(new Element(AAAConstant.WEBSERVICEPORT, prop.getProperty(AAAConstant.WEBSERVICEPORT)));
-            cacheServer.put(new Element("coaPort", prop.getProperty("coaPort")));
+            cacheServer.put(new Element(AAAConstant.COAPORT, prop.getProperty(AAAConstant.COAPORT)));
             cacheServer.put(new Element("coaOperation", prop.getProperty("coaOperation")));
             cacheServer.put(new Element("dataServiceId", prop.getProperty("dataServiceId")));
-            cacheServer.put(new Element("ipchargecategory", prop.getProperty("ipchargecategory")));
-            cacheServer.put(new Element("baseplangroup", prop.getProperty("baseplangroup")));
-            cacheServer.put(new Element("sessionthresold", prop.getProperty("sessionthresold")));
-            cacheServer.put(new Element("authMinThreads", prop.getProperty("authMinThreads")));
-            cacheServer.put(new Element("authMaxThreads", prop.getProperty("authMaxThreads")));
-            cacheServer.put(new Element("acctMinThreads", prop.getProperty("acctMinThreads")));
-            cacheServer.put(new Element("acctMaxThreads", prop.getProperty("acctMaxThreads")));
-            cacheServer.put(new Element("threadBenchTime", prop.getProperty("threadBenchTime")));
-            cacheServer.put(new Element("accept_all", prop.getProperty("accept_all")));
-            cacheServer.put(new Element("convert_stop_to_x", prop.getProperty("convert_stop_to_x")));
-            cacheServer.put(new Element("stop_to_x_method", prop.getProperty("stop_to_x_method")));
-            cacheServer.put(new Element("SEND_COA", prop.getProperty("SEND_COA")));
-            cacheServer.put(new Element("enable_resp_thread_pool", prop.getProperty("enable_resp_thread_pool")));
-            cacheServer.put(new Element("authRespMinThreads", prop.getProperty("authRespMinThreads")));
-            cacheServer.put(new Element("authRespMaxThreads", prop.getProperty("authRespMaxThreads")));
-            cacheServer.put(new Element("acctRespMinThreads", prop.getProperty("acctRespMinThreads")));
-            cacheServer.put(new Element("acctRespMaxThreads", prop.getProperty("acctRespMaxThreads")));
-            cacheServer.put(new Element("coaMaxThreads", prop.getProperty("coaMaxThreads")));
-            cacheServer.put(new Element("coaMinThreads", prop.getProperty("coaMinThreads")));
-            cacheServer.put(new Element("coaTimeout", prop.getProperty("coaTimeout")));
-            cacheServer.put(new Element("coaRetry", prop.getProperty("coaRetry")));
-            cacheServer.put(new Element("coaSleepTime", prop.getProperty("coaSleepTime")));
-            cacheServer.put(new Element("authAuditMinThreads", prop.getProperty("authAuditMinThreads")));
-            cacheServer.put(new Element("authAuditMaxThreads", prop.getProperty("authAuditMaxThreads")));
-            cacheServer.put(new Element("recordCDRMinThreads", prop.getProperty("recordCDRMinThreads")));
-            cacheServer.put(new Element("recordCDRMaxThreads", prop.getProperty("recordCDRMaxThreads")));
-            cacheServer.put(new Element("recordAcctStartMinThreads", prop.getProperty("recordAcctStartMinThreads")));
-            cacheServer.put(new Element("recordAcctStartMaxThreads", prop.getProperty("recordAcctStartMaxThreads")));
-            cacheServer.put(new Element("enable_duplicate_start_check", prop.getProperty("enable_duplicate_start_check")));
-            cacheServer.put(new Element("commonPoolMinThreads", prop.getProperty("commonPoolMinThreads")));
-            cacheServer.put(new Element("commonPoolMaxThreads", prop.getProperty("commonPoolMaxThreads")));
+            cacheServer.put(new Element(AAAConstant.IP_CHARGE_CATEGORY, prop.getProperty(AAAConstant.IP_CHARGE_CATEGORY)));
+            cacheServer.put(new Element(AAAConstant.BASE_PLAN_GROUP, prop.getProperty(AAAConstant.BASE_PLAN_GROUP)));
+            cacheServer.put(new Element(AAAConstant.SESSION_THRESHOLD, prop.getProperty(AAAConstant.SESSION_THRESHOLD)));
+            cacheServer.put(new Element(AAAConstant.AUTH_MIN_THREAD, prop.getProperty(AAAConstant.AUTH_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.AUTH_MAX_THREAD, prop.getProperty(AAAConstant.AUTH_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.ACCT_MIN_THREAD, prop.getProperty(AAAConstant.ACCT_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.ACCT_MAX_THREAD, prop.getProperty(AAAConstant.ACCT_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.THREAD_BENCH_TIME, prop.getProperty(AAAConstant.THREAD_BENCH_TIME)));
+            cacheServer.put(new Element(AAAConstant.ACCEPT_ALL, prop.getProperty(AAAConstant.ACCEPT_ALL)));
+            cacheServer.put(new Element(AAAConstant.CONVERT_STOP_TO_X, prop.getProperty(AAAConstant.CONVERT_STOP_TO_X)));
+            cacheServer.put(new Element(AAAConstant.STOP_TO_X_METHOD, prop.getProperty(AAAConstant.STOP_TO_X_METHOD)));
+            cacheServer.put(new Element(AAAConstant.SEND_COA, prop.getProperty(AAAConstant.SEND_COA)));
+            cacheServer.put(new Element(AAAConstant.ENABLE_RESP_THREAD_POOL, prop.getProperty(AAAConstant.ENABLE_RESP_THREAD_POOL)));
+            cacheServer.put(new Element(AAAConstant.AUTH_RESP_MIN_THREAD, prop.getProperty(AAAConstant.AUTH_RESP_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.AUTH_RESP_MAX_THREAD, prop.getProperty(AAAConstant.AUTH_RESP_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.ACCT_RESP_MIN_THREAD, prop.getProperty(AAAConstant.ACCT_RESP_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.ACCT_RESP_MAX_THREAD, prop.getProperty(AAAConstant.ACCT_RESP_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.COA_MAX_THREAD, prop.getProperty(AAAConstant.COA_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.COA_MIN_THREAD, prop.getProperty(AAAConstant.COA_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.COA_TIMEOUT, prop.getProperty(AAAConstant.COA_TIMEOUT)));
+            cacheServer.put(new Element(AAAConstant.COA_RETRY, prop.getProperty(AAAConstant.COA_RETRY)));
+            cacheServer.put(new Element(AAAConstant.COA_SLEEPTIME, prop.getProperty(AAAConstant.COA_SLEEPTIME)));
+            cacheServer.put(new Element(AAAConstant.RADIUS_AUTH_AUDIT_MIN_THREAD, prop.getProperty(AAAConstant.RADIUS_AUTH_AUDIT_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.RADIUS_AUTH_AUDIT_MAX_THREAD, prop.getProperty(AAAConstant.RADIUS_AUTH_AUDIT_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.RECORD_CDR_MIN_THREAD, prop.getProperty(AAAConstant.RECORD_CDR_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.RECORD_CDR_MAX_THREAD, prop.getProperty(AAAConstant.RECORD_CDR_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.RECORD_ACCTSTART_MIN_THREAD, prop.getProperty(AAAConstant.RECORD_ACCTSTART_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.RECORD_ACCTSTART_MAX_THREAD, prop.getProperty(AAAConstant.RECORD_ACCTSTART_MAX_THREAD)));
+            cacheServer.put(new Element(AAAConstant.ENABLE_DUPLICATE_START_CHECK, prop.getProperty(AAAConstant.ENABLE_DUPLICATE_START_CHECK)));
+            cacheServer.put(new Element(AAAConstant.COMMONPOOL_MIN_THREAD, prop.getProperty(AAAConstant.COMMONPOOL_MIN_THREAD)));
+            cacheServer.put(new Element(AAAConstant.COMMONPOOL_MAX_THREAD, prop.getProperty(AAAConstant.COMMONPOOL_MAX_THREAD)));
             this.log.debug("AAA SERVER IS RUNNING ON" + prop.getProperty(AAAConstant.SERVERIP) + ":AUTH:" + prop.getProperty(AAAConstant.AUTHPORT) + ":ACCT:" + prop.getProperty(AAAConstant.ACCTPORT));
-            DataSource.setupDataSource(prop.getProperty("db.url"), prop.getProperty("db.user"), prop.getProperty("db.password"), prop.getProperty("hikari_cachePrepStmts"), prop.getProperty("hikari_prepStmtCacheSize"), prop.getProperty("hikari_prepStmtCacheSqlLimit"), Integer.parseInt(prop.getProperty("hikari_mini_idle_conn")), Integer.parseInt(prop.getProperty("hikari_max_conn_poolsize")));
+            DataSource.setupDataSource(prop.getProperty("db.url"), prop.getProperty("db.user"), prop.getProperty("db.password"), prop.getProperty(AAAConstant.HIKARI_THPOOL_CACHE_PREPSTMT), prop.getProperty(AAAConstant.HIKARI_THPOOL_PRESTMT_CACHE_SIZE), prop.getProperty(AAAConstant.HIKARI_THPOOL_PRESTMT_CACHE_SQL_LIMIT), Integer.parseInt(prop.getProperty(AAAConstant.HIKARI_THPOOL_MIN_IDLE_CONN)), Integer.parseInt(prop.getProperty(AAAConstant.HIKARI_THPOOL_MAX_CONN_POOLSIZE)));
             Cache cacheClient = getCacheManagerData().getCache(AAAConstant.CLIENTCACHING);
             Cache cacheClientReply = getCacheManagerData().getCache(AAAConstant.CLIENTREPLY);
             this.cacheClient(cacheClient, cacheClientReply);

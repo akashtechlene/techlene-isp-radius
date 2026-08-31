@@ -1,7 +1,7 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+/**
+ * @author Akash Gaur
+ * @created year 2026
+ */
 
 package com.radiusengine.aaa.constant;
 //AAAConstant.AUTHPORT
@@ -195,6 +195,4 @@ public class AAAConstant {
     public static final String COMMONPOOL_MIN_THREAD = "commonPoolMinThreads";
     public static final String COMMONPOOL_MAX_THREAD = "commonPoolMaxThreads";
 
-    public AAAConstant() {
-    }
 }

@@ -1,7 +1,7 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+/**
+ * @author Akash Gaur
+ * @created year 2026
+ */
 
 package com.radiusengine.aaa.db;
 
@@ -915,12 +915,12 @@ public class DBAccountingDriver {
                 cdrData.setTotalActualTime(totalActualTime);
 
                 try {
-                    cdrData.setCreatedate(rset.getString("CREATE_DATE"));
+                    cdrData.setCreatedate(rset.getString(AAAConstant.CREATE_DATE));
                 } catch (Exception var36) {
                 }
 
                 try {
-                    cdrData.setLastmodifiedddate(rset.getString("LAST_MODIFIED_DATE"));
+                    cdrData.setLastmodifiedddate(rset.getString(AAAConstant.LAST_MODIFIED_DATE));
                 } catch (Exception var35) {
                 }
             } else {

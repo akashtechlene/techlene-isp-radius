@@ -1,7 +1,7 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+/**
+ * @author Akash Gaur
+ * @created year 2026
+ */
 
 package com.radiusengine.aaa.server;
 
@@ -12,6 +12,7 @@ import com.radiusengine.aaa.db.DBAccountingDriver;
 import com.radiusengine.aaa.db.DBAuthenticationDriver;
 import com.radiusengine.aaa.db.DataSource;
 import com.radiusengine.aaa.util.RSAUtility;
+import com.radiusengine.aaa.workers.RecordAcctInterimProcessor;
 import com.radiusengine.aaa.workers.RecordAcctStartProcessor;
 import com.radiusengine.aaa.workers.RecordCDRProcessor;
 
@@ -25,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinyradius.packet.AccountingRequest;
 import org.tinyradius.packet.RadiusPacket;
+import org.tinyradius.threadpool.CommonThreadPool;
+import org.tinyradius.threadpool.RadiusAcctStartPool;
 import org.tinyradius.threadpool.RadiusCOAPool;
 import org.tinyradius.threadpool.RadiusRecordCDRPool;
 import org.tinyradius.workers.RadiusCoAProcessor;
@@ -87,7 +90,7 @@ public class RadiusAcctImpl {
             boolean acceptAll = false;
 
             try {
-                acceptAll = Boolean.parseBoolean(cacheServerAttribe.get("accept_all").getObjectValue().toString());
+                acceptAll = Boolean.parseBoolean(cacheServerAttribe.get(AAAConstant.ACCEPT_ALL).getObjectValue().toString());
             } catch (Exception var23) {
                 acceptAll = false;
             }
@@ -208,7 +211,7 @@ public class RadiusAcctImpl {
                         if (this.request.getAttributeValue("Acct-Status-Type").equalsIgnoreCase("Start")) {
                             this.log.info(this.PACKET_IDENTIFIER + "[START CALLED]");
                             RecordAcctStartProcessor processor = new RecordAcctStartProcessor(this.request, this.acctFieldMapping, this.PACKET_IDENTIFIER);
-                            processor.run();
+                            RadiusAcctStartPool.getInstance().getExecutor().execute(processor);
                         } else if (this.request.getAttributeValue("Acct-Status-Type").equalsIgnoreCase("Stop")) {
                             CDRData liveSessionData = null;
 
@@ -238,24 +241,7 @@ public class RadiusAcctImpl {
 
                             RadiusRecordCDRPool.getInstance().getExecutor().execute(new RecordCDRProcessor(this.request, this.acctFieldMapping, this.PACKET_IDENTIFIER, liveSessionData, custPackRelId));
                         } else {
-                            this.log.info(this.PACKET_IDENTIFIER + "[INTERIM CALLED]");
-                            try (Connection conn = DataSource.getConnection()) {
-                                dbAccountingDrive.updateDBSesion(conn, this.request, this.acctFieldMapping);
-                                String coaOperation = CachingConfigurations.getCachedValue(AAAConstant.SERVERCACHING, AAAConstant.COAOPERATION).toString();
-                                if (custPackRelId != -1L && custPackRelId != -2L && !isUnlimitedQuota && !isSpeedDowngradeFUP) {
-                                    ArrayList<CDRData> cdrList = dbAccountingDrive.getCustomerCoAStatus(conn, this.request.getAttributeValue("User-Name"), custPackRelId);
-                                    if (cdrList != null) {
-                                        this.log.info(this.PACKET_IDENTIFIER + "COA triggered");
-                                        cdrData = null;
-
-                                        for (CDRData cdr : cdrList) {
-                                            RadiusCOAPool.getCoaPool().getCOAExecutor().execute(new RadiusCoAProcessor(this.PACKET_IDENTIFIER, cdr, coaOperation));
-                                        }
-                                    }
-                                } else {
-                                    this.log.info(this.PACKET_IDENTIFIER + "COA status check skipped::custPackRelId:" + custPackRelId + ",isUnlimitedQuota:" + isUnlimitedQuota + ",isSpeedDowngradeFUP:" + isSpeedDowngradeFUP);
-                                }
-                            }
+                            CommonThreadPool.getInstance().getExecutor().execute(new RecordAcctInterimProcessor(this.request, this.acctFieldMapping, this.PACKET_IDENTIFIER, custPackRelId, isUnlimitedQuota, isSpeedDowngradeFUP));
                         }
                     } else {
                         this.log.info(this.PACKET_IDENTIFIER + "custPackRelId Not found hence Skipping the request");
