@@ -1,0 +1,67 @@
+package org.tinyradius.threadpool;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import jersey.repackaged.com.google.common.util.concurrent.ThreadFactoryBuilder;
+//import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class RadiusAcctStartPool {
+   private static RadiusAcctStartPool radiusAcctStartPool = null;
+   private ExecutorService radiusAcctStartExecutor;
+   private Logger logger = LoggerFactory.getLogger("radiuslog");
+   private int minThread = 10;
+   private int maxThread = 50;
+   private int threadBenchTime = 0;
+
+   private RadiusAcctStartPool() {
+   }
+
+   public static RadiusAcctStartPool getInstance() {
+      return radiusAcctStartPool;
+   }
+
+   public ExecutorService getExecutor() {
+      if (this.radiusAcctStartExecutor == null) {
+         this.logger.info("RadiusAcctStartPool Initialized: min:" + this.minThread + ",Max:" + this.maxThread);
+         this.radiusAcctStartExecutor = new ThreadPoolExecutor(this.minThread, this.maxThread, (long)this.threadBenchTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue(), (new ThreadFactoryBuilder()).setNameFormat("RadiusAcctStartPool-%d").build());
+      }
+
+      return this.radiusAcctStartExecutor;
+   }
+
+   public int getMinThread() {
+      return this.minThread;
+   }
+
+   public void setMinThread(int minThread) {
+      this.minThread = minThread;
+   }
+
+   public int getMaxThread() {
+      return this.maxThread;
+   }
+
+   public void setMaxThread(int maxThread) {
+      this.maxThread = maxThread;
+   }
+
+   public int getThreadBenchTime() {
+      return this.threadBenchTime;
+   }
+
+   public void setThreadBenchTime(int threadBenchTime) {
+      this.threadBenchTime = threadBenchTime;
+   }
+
+   static {
+      try {
+         radiusAcctStartPool = new RadiusAcctStartPool();
+      } catch (Exception var1) {
+      }
+
+   }
+}
