@@ -30,21 +30,16 @@ public class RadiusServerImpl extends RadiusServer {
     }
 
     public String getSharedSecret(InetSocketAddress client) {
-        Exception e;
         try {
-            e = null;
             clientData cltData = this.identifyClient(client.getAddress().toString());
-            if (cltData != null) {
-                this.log.debug("Received Request From " + client.getAddress().toString() + ", Share Secret Key:" + cltData != null ? cltData.getSharedkey() : "not found");
-            } else {
+            if (cltData == null) {
                 this.log.debug("Received Request From " + client.getAddress().toString() + ", Share Secret Key not found");
+                return null;
             }
 
-            if (cltData != null) {
-                return cltData.getSharedkey();
-            }
-        } catch (Exception var3) {
-            e = var3;
+            this.log.debug("Received Request From " + client.getAddress().toString() + ", Share Secret Key found");
+            return cltData.getSharedkey();
+        } catch (Exception e) {
             this.log.error("Error in getSharedSecret():" + e, e);
         }
 
@@ -64,8 +59,9 @@ public class RadiusServerImpl extends RadiusServer {
         this.log.debug("Received Request From " + strClient);
         Cache cache = CachingConfigurations.getCacheManagerData().getCache(AAAConstant.CLIENTCACHING);
         clientData cltData;
-        if (cache.get(strClient) != null) {
-            cltData = (clientData)cache.get(strClient).getObjectValue();
+        Element exactMatch = cache.get(strClient);
+        if (exactMatch != null) {
+            cltData = (clientData) exactMatch.getObjectValue();
             this.log.debug("For Client:" + strClient + ":Shared Key is " + cltData.getSharedkey());
             return cltData;
         } else {

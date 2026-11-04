@@ -241,11 +241,12 @@
             <systemPath>${project.basedir}/lib/tinyradius.jar</systemPath>
         </dependency>
         -->
-        <dependency>
-            <groupId>org.tinyradius</groupId>
-            <artifactId>tinyradius</artifactId>
-            <version>1.0</version>
-        </dependency>
+        <!-- commenting this jar added or.tinyradius locally Note and this jar also added to local maven repository-->
+<!--        <dependency>-->
+<!--            <groupId>org.tinyradius</groupId>-->
+<!--            <artifactId>tinyradius</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

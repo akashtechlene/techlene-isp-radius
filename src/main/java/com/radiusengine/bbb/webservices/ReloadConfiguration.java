@@ -1,0 +1,29 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package com.radiusengine.bbb.webservices;
+
+import com.radiusengine.bbb.server.CachingConfigurations;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Request;
+
+@Path("reloadConfiguration")
+public class ReloadConfiguration {
+    public ReloadConfiguration() {
+    }
+
+    @POST
+    @Consumes({"text/plain"})
+    @Produces({"text/plain"})
+    public String reloadConfiguration(@Context Request request, String parameter) {
+        CachingConfigurations cacheConfig = CachingConfigurations.getInstance();
+        cacheConfig.reloadConfiguration();
+        return "success";
+    }
+}

@@ -6,18 +6,13 @@
 package com.radiusengine.aaa.util;
 
 import com.radiusengine.aaa.data.customerData;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.packet.RadiusPacket;
 
 public class ValidateExpression {
-    Logger log = LoggerFactory.getLogger("radiuslog");
+    private static final Logger LOG = LoggerFactory.getLogger("radiuslog");
     public static final String NEO_PREFIX_USERATTR = "NEO-USERATTR-";
     public static final String NEO_PREFIX_ATTR = "NEO-ATTR-";
     public static final String NEO_PREFIX_CUSTOMIZATION = "NEO-CUSTOMIZATION-";
@@ -27,11 +22,9 @@ public class ValidateExpression {
     public static final String NEO_USERATTR_POOLNAME = "NEO-USERATTR-POOLNAME";
     public static final String NEO_USERATTR_SERVICETYPE = "NEO-USERATTR-SERVICETYPE";
     public static final String NEO_ATTR_CLIENTGROUP = "NEO-ATTR-CLIENTGROUP";
+    private static final String NEO_KEY_PREFIX = "NEO";
+    private static final String CLIENT_GROUP_REQUEST_ATTRIBUTE = "Connect-Info";
     public String PACKET_IDENTIFIER = "";
-
-    public boolean checkExpression(String strExpression, RadiusPacket request) {
-        return this.checkExpression(strExpression, request, (RadiusPacket)null, (customerData)null);
-    }
 
     public ValidateExpression() {
     }
@@ -40,140 +33,105 @@ public class ValidateExpression {
         this.PACKET_IDENTIFIER = packetIdentifier;
     }
 
+    public boolean checkExpression(String strExpression, RadiusPacket request) {
+        return this.checkExpression(strExpression, request, null, null);
+    }
+
+    /**
+     * Evaluates an expression such as {@code Attr1=value1&NEO-USERATTR-POOLNAME=pool}. Every well-formed
+     * {@code key=value} condition must match; conditions that are not exactly one key and one value are ignored.
+     * An empty expression always matches, an expression without a single well-formed condition never does.
+     */
     public boolean checkExpression(String strExpression, RadiusPacket request, RadiusPacket response, customerData customerData) {
-        boolean bExprMatches = false;
-        this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression, start validating Expression:" + strExpression);
+        boolean exprMatches = false;
+        LOG.debug("{}In checkExpression, start validating Expression:{}", this.PACKET_IDENTIFIER, strExpression);
 
         try {
-            if (strExpression != null && !strExpression.equalsIgnoreCase("")) {
-                Pattern pattern = Pattern.compile("[&]");
-                String[] conditions = pattern.split(strExpression);
-                List<HashMap<String, String>> conditionList = new ArrayList();
-                HashMap<String, String> condiKeyValMap = null;
-                Pattern patternkeyValue = Pattern.compile("[=]");
-                String[] var11 = conditions;
-                int var12 = conditions.length;
-
-                for(int var13 = 0; var13 < var12; ++var13) {
-                    String s = var11[var13];
-                    String[] condWords = patternkeyValue.split(s);
-                    if (condWords != null && condWords.length == 2) {
-                        condiKeyValMap = new HashMap();
-                        condiKeyValMap.put(condWords[0].trim(), condWords[1].trim().replaceAll("\"", "").replaceAll("'", ""));
-                        conditionList.add(condiKeyValMap);
+            if (strExpression == null || strExpression.isEmpty()) {
+                exprMatches = true;
+            } else {
+                for (String condition : strExpression.split("&")) {
+                    String[] keyValue = condition.split("=");
+                    if (keyValue.length != 2) {
+                        continue;
                     }
-                }
 
-                label69:
-                for(int i = 0; i < conditionList.size(); ++i) {
-                    HashMap<String, String> regMap = (HashMap)conditionList.get(i);
-                    Iterator it = regMap.entrySet().iterator();
-
-                    while(true) {
-                        while(it.hasNext()) {
-                            Map.Entry pair = (Map.Entry)it.next();
-                            this.log.debug(this.PACKET_IDENTIFIER + pair.getKey() + " = " + pair.getValue());
-                            if (!pair.getKey().toString().startsWith("NEO")) {
-                                try {
-                                    if (null != request.getAttribute(pair.getKey().toString()) && pair.getValue().toString().equalsIgnoreCase(request.getAttribute(pair.getKey().toString()).getAttributeValue())) {
-                                        this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression" + pair.getKey() + " is matched with Radius Request");
-                                        bExprMatches = true;
-                                    } else {
-                                        this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression" + pair.getKey() + " not matched with Radius Request");
-                                        bExprMatches = false;
-                                    }
-                                } catch (Exception var16) {
-                                    bExprMatches = false;
-                                    this.log.error(this.PACKET_IDENTIFIER + "In checkExpression Error in checkExpression():" + var16, var16);
-                                }
-                            } else if (pair.getKey().toString().startsWith("NEO") && pair.getKey() != null) {
-                                bExprMatches = this.validateNeoExpresson(pair.getKey().toString(), pair.getValue().toString(), request, response, customerData);
-                                if (bExprMatches) {
-                                    this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression" + pair.getKey() + " is matched with Neo Attributes");
-                                } else {
-                                    this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression" + pair.getKey() + " not matched with Neo Attributes");
-                                }
-                            } else {
-                                bExprMatches = false;
-                                this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression" + pair.getKey() + " is supported");
-                            }
-                        }
-
-                        if (!bExprMatches) {
-                            this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression Dropped the condition as one of the condition match failed");
-                            break label69;
-                        }
+                    String key = keyValue[0].trim();
+                    String value = keyValue[1].trim().replaceAll("\"", "").replaceAll("'", "");
+                    LOG.debug("{}{} = {}", this.PACKET_IDENTIFIER, key, value);
+                    exprMatches = key.startsWith(NEO_KEY_PREFIX)
+                            ? this.matchesNeoAttribute(key, value, request, response, customerData)
+                            : this.matchesRequestAttribute(key, value, request);
+                    if (!exprMatches) {
+                        LOG.debug("{}In checkExpression Dropped the condition as one of the condition match failed", this.PACKET_IDENTIFIER);
                         break;
                     }
                 }
-            } else {
-                bExprMatches = true;
             }
-        } catch (Exception var17) {
-            Exception e = var17;
-            this.log.error(this.PACKET_IDENTIFIER + "Error in checkExpression():" + e, e);
-            bExprMatches = false;
+        } catch (Exception e) {
+            LOG.error(this.PACKET_IDENTIFIER + "Error in checkExpression():" + e, e);
+            exprMatches = false;
         }
 
-        this.log.debug(this.PACKET_IDENTIFIER + "In checkExpression, validating Expression:" + strExpression + ",Result:" + bExprMatches);
-        return bExprMatches;
+        LOG.debug("{}In checkExpression, validating Expression:{},Result:{}", this.PACKET_IDENTIFIER, strExpression, exprMatches);
+        return exprMatches;
+    }
+
+    private boolean matchesRequestAttribute(String key, String value, RadiusPacket request) {
+        try {
+            RadiusAttribute attribute = request.getAttribute(key);
+            boolean matched = attribute != null && value.equalsIgnoreCase(attribute.getAttributeValue());
+            LOG.debug("{}In checkExpression{} {} with Radius Request", this.PACKET_IDENTIFIER, key, matched ? "is matched" : "not matched");
+            return matched;
+        } catch (Exception e) {
+            LOG.error(this.PACKET_IDENTIFIER + "In checkExpression Error in checkExpression():" + e, e);
+            return false;
+        }
+    }
+
+    private boolean matchesNeoAttribute(String key, String value, RadiusPacket request, RadiusPacket response, customerData customerData) {
+        boolean matched = this.validateNeoExpresson(key, value, request, response, customerData);
+        LOG.debug("{}In checkExpression{} {} with Neo Attributes", this.PACKET_IDENTIFIER, key, matched ? "is matched" : "not matched");
+        return matched;
     }
 
     public boolean validateNeoExpresson(String key, String value, RadiusPacket request, RadiusPacket response, customerData customerData) {
-        boolean blnReply = false;
-
-        try {
-            if (key == null || value == null) {
-                return false;
-            }
-
-            if (key.startsWith("NEO-ATTR-")) {
-                switch (key) {
-                    case "NEO-ATTR-CLIENTGROUP":
-                        String radiusAttribute = "Connect-Info";
-                        this.log.debug(this.PACKET_IDENTIFIER + "In validateNeoExpresson,request:" + request);
-                        if (request != null && null != request.getAttribute(radiusAttribute) && value.equalsIgnoreCase(request.getAttribute(radiusAttribute).getAttributeValue())) {
-                            blnReply = true;
-                        }
-                }
-            } else if (key.startsWith("NEO-USERATTR-")) {
-                switch (key) {
-                    case "NEO-USERATTR-STATICIPALLOTED":
-                        boolean isIPSet = customerData != null && customerData.getIpaddress() != null && customerData.getIpaddress().length() > 0;
-                        this.log.debug(this.PACKET_IDENTIFIER + "In validateNeoExpresson,isIPSet:" + isIPSet);
-                        if (value.equalsIgnoreCase("true") && isIPSet) {
-                            blnReply = true;
-                        } else if (value.equalsIgnoreCase("false") && !isIPSet) {
-                            blnReply = true;
-                        }
-                        break;
-                    case "NEO-USERATTR-NETWORKTYPE":
-                        if (customerData != null && customerData.getNetworktype() != null && !"".equalsIgnoreCase(customerData.getNetworktype()) && customerData.getNetworktype().equalsIgnoreCase(value)) {
-                            blnReply = true;
-                        }
-                        break;
-                    case "NEO-USERATTR-PARTNERNAME":
-                        if (customerData != null && customerData.getPartnerName() != null && !"".equalsIgnoreCase(customerData.getPartnerName()) && customerData.getPartnerName().equalsIgnoreCase(value)) {
-                            blnReply = true;
-                        }
-                        break;
-                    case "NEO-USERATTR-SERVICETYPE":
-                        if (customerData != null && customerData.getServicetype() != null && !"".equalsIgnoreCase(customerData.getServicetype()) && customerData.getServicetype().equalsIgnoreCase(value)) {
-                            blnReply = true;
-                        }
-                        break;
-                    case "NEO-USERATTR-POOLNAME":
-                        if (customerData != null && customerData.getPoolname() != null && !"".equalsIgnoreCase(customerData.getPoolname()) && customerData.getPoolname().equalsIgnoreCase(value)) {
-                            blnReply = true;
-                        }
-                }
-            }
-        } catch (Exception var10) {
-            Exception e = var10;
-            this.log.error(this.PACKET_IDENTIFIER + "Error in validateNeoExpresson():" + e, e);
-            blnReply = false;
+        if (key == null || value == null) {
+            return false;
         }
 
-        return blnReply;
+        try {
+            switch (key) {
+                case NEO_ATTR_CLIENTGROUP:
+                    LOG.debug("{}In validateNeoExpresson,request:{}", this.PACKET_IDENTIFIER, request);
+                    if (request == null) {
+                        return false;
+                    }
+
+                    RadiusAttribute clientGroup = request.getAttribute(CLIENT_GROUP_REQUEST_ATTRIBUTE);
+                    return clientGroup != null && value.equalsIgnoreCase(clientGroup.getAttributeValue());
+                case NEO_USERATTR_STATICIPALLOTTED:
+                    boolean isIPSet = customerData != null && customerData.getIpaddress() != null && customerData.getIpaddress().length() > 0;
+                    LOG.debug("{}In validateNeoExpresson,isIPSet:{}", this.PACKET_IDENTIFIER, isIPSet);
+                    return value.equalsIgnoreCase("true") && isIPSet || value.equalsIgnoreCase("false") && !isIPSet;
+                case NEO_USERATTR_NETWORKTYPE:
+                    return customerData != null && equalsNonEmpty(customerData.getNetworktype(), value);
+                case NEO_USERATTR_PARTNERNAME:
+                    return customerData != null && equalsNonEmpty(customerData.getPartnerName(), value);
+                case NEO_USERATTR_SERVICETYPE:
+                    return customerData != null && equalsNonEmpty(customerData.getServicetype(), value);
+                case NEO_USERATTR_POOLNAME:
+                    return customerData != null && equalsNonEmpty(customerData.getPoolname(), value);
+                default:
+                    return false;
+            }
+        } catch (Exception e) {
+            LOG.error(this.PACKET_IDENTIFIER + "Error in validateNeoExpresson():" + e, e);
+            return false;
+        }
+    }
+
+    private static boolean equalsNonEmpty(String actual, String expected) {
+        return actual != null && !actual.isEmpty() && actual.equalsIgnoreCase(expected);
     }
 }

@@ -74,16 +74,16 @@ ATTRIBUTE	ARAP-Challenge-Response	84	string
 ATTRIBUTE	Acct-Interim-Interval   85      integer
 ATTRIBUTE	NAS-Port-Id		87	string
 ATTRIBUTE	Framed-Pool		88	string
-ATTRIBUTE	NAS-IPv6-Address	95	octets
+ATTRIBUTE	NAS-IPv6-Address	95	ipv6addr
 ATTRIBUTE	Framed-Interface-Id	96	octets
-ATTRIBUTE   Framed-IPv6-Prefix  97  octets
+ATTRIBUTE   	Framed-IPv6-Prefix  	97  	ipv6prefix
 ATTRIBUTE	Login-IPv6-Host		98	octets
 ATTRIBUTE	Framed-IPv6-Route	99	string
 ATTRIBUTE	Framed-IPv6-Pool	100	string
 ATTRIBUTE	Digest-Response		206	string
 ATTRIBUTE	Digest-Attributes	207	octets
-ATTRIBUTE       Delegated-IPv6-Prefix   123     octets
-ATTRIBUTE       Framed-IPv6-Address     168     octets
+ATTRIBUTE       Delegated-IPv6-Prefix   123     ipv6prefix
+ATTRIBUTE       Framed-IPv6-Address     168     ipv6addr
 ATTRIBUTE       DNS-Server-IPv6-Address 169     octets
 ATTRIBUTE       Route-IPv6-Information  170     octets
 ATTRIBUTE       Delegated-IPv6-Prefix-Pool 171  string
@@ -352,6 +352,20 @@ VENDORATTR	    6527   Alc-Acct-OC-O-Outpr-Octs-Drop_64 94 octets
 VENDORATTR	    6527   Alc-Credit-Control-CategoryMap 95 string
 VENDORATTR	    6527   Alc-Credit-Control-Quota 96 string
 VENDORATTR	    6527   Alc-Force-Nak 98 string
+VENDORATTR          6527   Alc-Ipv6-Address 99 ipv6addr
+VENDORATTR          6527   Alc-Delegated-IPv6-Pool 131   string
+VENDORATTR          6527   Alc-Subscriber-QoS-Override 126 string
+VENDORATTR          6527   Alc-Acct-I-statmode 107 string
+VENDORATTR          6527   Alc-Acct-I-All-Octets_64 116 octets
+VENDORATTR          6527   Alc-Acct-Triggered-Reason 163 integer
+VENDORATTR          6527   Alc-Acct-O-All-Packets_64 118 octets
+VENDORATTR          6527   Alc-IPv6-Acct-Input-Packets 194 integer
+VENDORATTR          6527   Alc-IPv6-Acct-Input-Octets 195 integer
+VENDORATTR          6527   Alc-IPv6-Acct-Output-Packets 197 integer
+VENDORATTR          6527   Alc-IPv6-Acct-Output-Octets 198 integer
+VENDORATTR          6527   Alc-Error-Code 226 integer
+VENDORATTR          6527   Alc-Error-Message 227 string
+VENDORATTR          6527   Alc-PPP-Force-IPv6CP 135 integer
 
 
 VENDOR			2011		Huawei

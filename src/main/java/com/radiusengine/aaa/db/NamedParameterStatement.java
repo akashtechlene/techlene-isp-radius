@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class NamedParameterStatement {
+public class NamedParameterStatement implements AutoCloseable {
     private final PreparedStatement statement;
     private Map<String, int[]> indexMap;
 

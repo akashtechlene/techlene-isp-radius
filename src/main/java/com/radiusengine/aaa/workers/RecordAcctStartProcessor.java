@@ -36,59 +36,41 @@ public class RecordAcctStartProcessor implements Runnable {
             try {
                 strUsername = this.acctRequest.getAttribute("User-Name").getAttributeValue();
                 strUsername = strUsername != null ? strUsername.trim() : null;
-            } catch (Exception var13) {
+            } catch (Exception e) {
                 log.info("User-Name Not Found");
             }
 
-            String sessionId = null;
-
-            try {
-                sessionId = this.acctRequest.getAttribute("Acct-Session-Id").getAttributeValue();
-            } catch (Exception var12) {
-                sessionId = null;
-            }
-
-            String nasIP = null;
-
-            try {
-                nasIP = this.acctRequest.getAttribute("NAS-IP-Address").getAttributeValue();
-            } catch (Exception var11) {
-                nasIP = null;
-            }
-
-            String framedIPAddress = null;
-
-            try {
-                framedIPAddress = this.acctRequest.getAttribute("Framed-IP-Address").getAttributeValue();
-            } catch (Exception var10) {
-                framedIPAddress = null;
-            }
-
+            String nasIP = this.attributeValueOrNull("NAS-IP-Address");
+            String framedIPAddress = this.attributeValueOrNull("Framed-IP-Address");
             boolean enableDuplicateCheck = false;
 
             try {
-                CachingConfigurations cacheConfig = CachingConfigurations.getInstance();
+                CachingConfigurations.getInstance(); // makes sure the cache is initialised
                 Cache cache = CachingConfigurations.getCacheManagerData().getCache(AAAConstant.SERVERCACHING);
                 enableDuplicateCheck = Boolean.valueOf(cache.get(AAAConstant.ENABLE_DUPLICATE_START_CHECK).getObjectValue().toString());
-            } catch (Exception var9) {
+            } catch (Exception e) {
                 enableDuplicateCheck = false;
             }
 
             try (Connection conn = DataSource.getConnection()) {
-                boolean bInsertLiveUser = true;
-                if (enableDuplicateCheck && driver.isDupliacteStart(conn, strUsername, nasIP, framedIPAddress)) {
-                    bInsertLiveUser = false;
-                }
-
-                if (bInsertLiveUser) {
-                    driver.insertDBSesion(conn, this.acctRequest, this.acctFieldMapping);
-                } else {
+                boolean duplicateStart = enableDuplicateCheck && driver.isDupliacteStart(conn, strUsername, nasIP, framedIPAddress);
+                if (duplicateStart) {
                     log.info(this.PACKET_IDENTIFIER + "dropping the duplicate start,enableDuplicateCheck:{} ", enableDuplicateCheck);
+                } else {
+                    driver.insertDBSesion(conn, this.acctRequest, this.acctFieldMapping);
                 }
             }
         } catch (Exception e) {
             log.error(this.PACKET_IDENTIFIER + "Error IN GET RecordAcctStartProcessor()" + e, e);
         }
+    }
 
+    /** Value of the named attribute, or null when it is missing or cannot be read. */
+    private String attributeValueOrNull(String attributeName) {
+        try {
+            return this.acctRequest.getAttribute(attributeName).getAttributeValue();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -86,7 +86,7 @@ public class RSAUtility {
         return keyValueMap;
     }
     public static void main(String args[]){
-        TreeMap<String, String> classParamMap = RSAUtility.decrypt("NeoFruition@2021", "d11861c5652f0f07d43caaa1197e50ad1a991553cb5bff1fd75b1789fd03c9f4");
+        TreeMap<String, String> classParamMap = RSAUtility.decrypt(KEY, "d11861c5652f0f07d43caaa1197e50ad1a991553cb5bff1fd75b1789fd03c9f4");
         System.out.println("classParamMap :"+classParamMap);
     }
 }

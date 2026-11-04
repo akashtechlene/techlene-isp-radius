@@ -39,9 +39,7 @@ public class RadiusAAAServer {
 
         try {
             RadiusAAAServer radiusAAAServer = new RadiusAAAServer();
-            if (args.length == 0) {
-                radiusAAAServer.startServer();
-            } else if (args.length != 0 && args[0].equals("stop")) {
+            if (args.length > 0 && args[0].equals("stop")) {
                 radiusAAAServer.stopServer();
             } else {
                 radiusAAAServer.startServer();
@@ -53,44 +51,49 @@ public class RadiusAAAServer {
 
     }
 
+    /** Reads a server config value from the cache and parses it as an int (NPE / NumberFormatException when missing or invalid). */
+    private static int intValue(Cache cache, String key) {
+        return Integer.parseInt(cache.get(key).getObjectValue().toString());
+    }
+
     private void startServer() {
         Logger log = LoggerFactory.getLogger("radiuslog");
 
         try {
             log.info("Initializing Radius Server");
-            CachingConfigurations cacheConfig = CachingConfigurations.getInstance();
+            CachingConfigurations.getInstance();
             Cache cache = CachingConfigurations.getCacheManagerData().getCache(AAAConstant.SERVERCACHING);
-            this.server.setAcctPort(Integer.parseInt(cache.get(AAAConstant.ACCTPORT).getObjectValue().toString()));
-            this.server.setAuthPort(Integer.parseInt(cache.get(AAAConstant.AUTHPORT).getObjectValue().toString()));
-            this.server.setAuthMaxThreads(Integer.parseInt(cache.get(AAAConstant.AUTH_MAX_THREAD).getObjectValue().toString()));
-            this.server.setAuthMinThreads(Integer.parseInt(cache.get(AAAConstant.AUTH_MIN_THREAD).getObjectValue().toString()));
-            this.server.setAcctMaxThreads(Integer.parseInt(cache.get(AAAConstant.ACCT_MAX_THREAD).getObjectValue().toString()));
-            this.server.setAcctMinThreads(Integer.parseInt(cache.get(AAAConstant.ACCT_MIN_THREAD).getObjectValue().toString()));
-            this.server.setThreadBenchTime(Integer.parseInt(cache.get(AAAConstant.THREAD_BENCH_TIME).getObjectValue().toString()));
-            RadiusAuthRespPool.getRadiusAuthRespPool().setAuthMinThreads(Integer.parseInt(cache.get(AAAConstant.AUTH_RESP_MIN_THREAD).getObjectValue().toString()));
-            RadiusAuthRespPool.getRadiusAuthRespPool().setAuthMaxThreads(Integer.parseInt(cache.get(AAAConstant.AUTH_RESP_MAX_THREAD).getObjectValue().toString()));
+            this.server.setAcctPort(intValue(cache, AAAConstant.ACCTPORT));
+            this.server.setAuthPort(intValue(cache, AAAConstant.AUTHPORT));
+            this.server.setAuthMaxThreads(intValue(cache, AAAConstant.AUTH_MAX_THREAD));
+            this.server.setAuthMinThreads(intValue(cache, AAAConstant.AUTH_MIN_THREAD));
+            this.server.setAcctMaxThreads(intValue(cache, AAAConstant.ACCT_MAX_THREAD));
+            this.server.setAcctMinThreads(intValue(cache, AAAConstant.ACCT_MIN_THREAD));
+            this.server.setThreadBenchTime(intValue(cache, AAAConstant.THREAD_BENCH_TIME));
+            RadiusAuthRespPool.getRadiusAuthRespPool().setAuthMinThreads(intValue(cache, AAAConstant.AUTH_RESP_MIN_THREAD));
+            RadiusAuthRespPool.getRadiusAuthRespPool().setAuthMaxThreads(intValue(cache, AAAConstant.AUTH_RESP_MAX_THREAD));
             RadiusAuthRespPool.getRadiusAuthRespPool().setThreadBenchTime(this.server.getThreadBenchTime());
-            RadiusCOAPool.getCoaPool().setCoaMaxThread(Integer.parseInt(cache.get(AAAConstant.COA_MAX_THREAD).getObjectValue().toString()));
-            RadiusCOAPool.getCoaPool().setCoaMinThread(Integer.parseInt(cache.get(AAAConstant.COA_MIN_THREAD).getObjectValue().toString()));
-            RadiusCOAPool.getCoaPool().setCoaSleepTime(Integer.parseInt(cache.get(AAAConstant.COA_SLEEPTIME).getObjectValue().toString()));
-            RadiusCOAPool.getCoaPool().setThreadBenchTime(Integer.parseInt(cache.get(AAAConstant.THREAD_BENCH_TIME).getObjectValue().toString()));
-            RadiusAuthAuditPool.getInstance().setRadiusAuthAuditMinThread(Integer.parseInt(cache.get(AAAConstant.RADIUS_AUTH_AUDIT_MIN_THREAD).getObjectValue().toString()));
-            RadiusAuthAuditPool.getInstance().setRadiusAuthAuditMaxThread(Integer.parseInt(cache.get(AAAConstant.RADIUS_AUTH_AUDIT_MAX_THREAD).getObjectValue().toString()));
-            RadiusAuthAuditPool.getInstance().setThreadBenchTime(Integer.parseInt(cache.get(AAAConstant.THREAD_BENCH_TIME).getObjectValue().toString()));
-            RadiusRecordCDRPool.getInstance().setMinThread(Integer.parseInt(cache.get(AAAConstant.RECORD_CDR_MIN_THREAD).getObjectValue().toString()));
-            RadiusRecordCDRPool.getInstance().setMaxThread(Integer.parseInt(cache.get(AAAConstant.RECORD_CDR_MAX_THREAD).getObjectValue().toString()));
-            RadiusRecordCDRPool.getInstance().setThreadBenchTime(Integer.parseInt(cache.get(AAAConstant.THREAD_BENCH_TIME).getObjectValue().toString()));
-            RadiusAcctStartPool.getInstance().setMinThread(Integer.parseInt(cache.get(AAAConstant.RECORD_ACCTSTART_MIN_THREAD).getObjectValue().toString()));
-            RadiusAcctStartPool.getInstance().setMaxThread(Integer.parseInt(cache.get(AAAConstant.RECORD_ACCTSTART_MAX_THREAD).getObjectValue().toString()));
-            RadiusAcctStartPool.getInstance().setThreadBenchTime(Integer.parseInt(cache.get(AAAConstant.THREAD_BENCH_TIME).getObjectValue().toString()));
-            CommonThreadPool.getInstance().setMinThread(Integer.parseInt(cache.get(AAAConstant.COMMONPOOL_MIN_THREAD).getObjectValue().toString()));
-            CommonThreadPool.getInstance().setMaxThread(Integer.parseInt(cache.get(AAAConstant.COMMONPOOL_MAX_THREAD).getObjectValue().toString()));
-            CommonThreadPool.getInstance().setThreadBenchTime(Integer.parseInt(cache.get(AAAConstant.THREAD_BENCH_TIME).getObjectValue().toString()));
+            RadiusCOAPool.getCoaPool().setCoaMaxThread(intValue(cache, AAAConstant.COA_MAX_THREAD));
+            RadiusCOAPool.getCoaPool().setCoaMinThread(intValue(cache, AAAConstant.COA_MIN_THREAD));
+            RadiusCOAPool.getCoaPool().setCoaSleepTime(intValue(cache, AAAConstant.COA_SLEEPTIME));
+            RadiusCOAPool.getCoaPool().setThreadBenchTime(intValue(cache, AAAConstant.THREAD_BENCH_TIME));
+            RadiusAuthAuditPool.getInstance().setRadiusAuthAuditMinThread(intValue(cache, AAAConstant.RADIUS_AUTH_AUDIT_MIN_THREAD));
+            RadiusAuthAuditPool.getInstance().setRadiusAuthAuditMaxThread(intValue(cache, AAAConstant.RADIUS_AUTH_AUDIT_MAX_THREAD));
+            RadiusAuthAuditPool.getInstance().setThreadBenchTime(intValue(cache, AAAConstant.THREAD_BENCH_TIME));
+            RadiusRecordCDRPool.getInstance().setMinThread(intValue(cache, AAAConstant.RECORD_CDR_MIN_THREAD));
+            RadiusRecordCDRPool.getInstance().setMaxThread(intValue(cache, AAAConstant.RECORD_CDR_MAX_THREAD));
+            RadiusRecordCDRPool.getInstance().setThreadBenchTime(intValue(cache, AAAConstant.THREAD_BENCH_TIME));
+            RadiusAcctStartPool.getInstance().setMinThread(intValue(cache, AAAConstant.RECORD_ACCTSTART_MIN_THREAD));
+            RadiusAcctStartPool.getInstance().setMaxThread(intValue(cache, AAAConstant.RECORD_ACCTSTART_MAX_THREAD));
+            RadiusAcctStartPool.getInstance().setThreadBenchTime(intValue(cache, AAAConstant.THREAD_BENCH_TIME));
+            CommonThreadPool.getInstance().setMinThread(intValue(cache, AAAConstant.COMMONPOOL_MIN_THREAD));
+            CommonThreadPool.getInstance().setMaxThread(intValue(cache, AAAConstant.COMMONPOOL_MAX_THREAD));
+            CommonThreadPool.getInstance().setThreadBenchTime(intValue(cache, AAAConstant.THREAD_BENCH_TIME));
             InetAddress address = InetAddress.getByName(cache.get(AAAConstant.SERVERIP).getObjectValue().toString());
             this.server.setListenAddress(address);
             this.server.start(true, true);
-            URI baseUri = UriBuilder.fromUri(cache.get(AAAConstant.WEBSERVICEIP).getObjectValue().toString()).port(Integer.parseInt(cache.get(AAAConstant.WEBSERVICEPORT).getObjectValue().toString())).build(new Object[0]);
-            Set resourceSet = new HashSet();
+            URI baseUri = UriBuilder.fromUri(cache.get(AAAConstant.WEBSERVICEIP).getObjectValue().toString()).port(intValue(cache, AAAConstant.WEBSERVICEPORT)).build();
+            Set<Class<?>> resourceSet = new HashSet<>();
             resourceSet.add(ValidateServer.class);
             resourceSet.add(ReloadConfiguration.class);
             resourceSet.add(RadiusServices.class);
@@ -99,8 +102,7 @@ public class RadiusAAAServer {
             log.info("*** Radius Server Started Successfully ***");
             SNMPTrapGenerator trapV2 = new SNMPTrapGenerator();
             trapV2.clearTrap_Version2("public", "127.0.0.1", 162, "Radius Server Up", ".1.3.6.1.2.1.1.9");
-        } catch (Exception var10) {
-            Exception e = var10;
+        } catch (Exception e) {
             log.error("Error in startServer():" + e, e);
         }
 
@@ -111,10 +113,10 @@ public class RadiusAAAServer {
 
         try {
             log.info("Stopping Radius Server");
-            CachingConfigurations cacheConfig = CachingConfigurations.getInstance();
+            CachingConfigurations.getInstance();
             Cache cache = CachingConfigurations.getCacheManagerData().getCache(AAAConstant.SERVERCACHING);
-            this.server.setAcctPort(Integer.parseInt(cache.get(AAAConstant.ACCTPORT).getObjectValue().toString()));
-            this.server.setAuthPort(Integer.parseInt(cache.get(AAAConstant.AUTHPORT).getObjectValue().toString()));
+            this.server.setAcctPort(intValue(cache, AAAConstant.ACCTPORT));
+            this.server.setAuthPort(intValue(cache, AAAConstant.AUTHPORT));
             InetAddress address = InetAddress.getByName(cache.get(AAAConstant.SERVERIP).getObjectValue().toString());
             this.server.setListenAddress(address);
             this.server.stop();

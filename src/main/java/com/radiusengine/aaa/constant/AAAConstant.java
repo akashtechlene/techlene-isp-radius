@@ -195,4 +195,6 @@ public class AAAConstant {
     public static final String COMMONPOOL_MIN_THREAD = "commonPoolMinThreads";
     public static final String COMMONPOOL_MAX_THREAD = "commonPoolMaxThreads";
 
+    public AAAConstant() {
+    }
 }

@@ -51,43 +51,18 @@ public class DBAccountingDriver {
 
     private int getDBCDR(String strSessionId) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN GET CDR FROM DB :" + strSessionId + "QUERY" + strRadiusAccountSelect);
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
         int intCount = 0;
 
-        try {
-            conn = DataSource.getConnection();
-            stmt = conn.prepareStatement(strRadiusAccountSelect);
+        try (Connection conn = DataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(strRadiusAccountSelect)) {
             stmt.setString(1, strSessionId);
 
-            for(rset = stmt.executeQuery(); rset.next(); ++intCount) {
+            try (ResultSet rset = stmt.executeQuery()) {
+                while (rset.next()) {
+                    ++intCount;
+                }
             }
-        } catch (SQLException var23) {
-            SQLException e = var23;
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in getDBCDR():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    rset.close();
-                }
-            } catch (Exception var22) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var21) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var20) {
-            }
-
         }
 
         return intCount;
@@ -110,115 +85,70 @@ public class DBAccountingDriver {
 
         log.debug(this.PACKET_IDENTIFIER + "IN Insert CDR FROM DB QUERY:");
 
-        NamedParameterStatement stmt = null;
-        ResultSet rset = null;
-        customerData custDBData = null;
         try {
             String cdrTable = "tblacctcdr_" + LocalDateTime.now().getYear() + "_" + LocalDateTime.now().getMonthValue();
-            String cdrInsertSQL = null;
+            String cdrInsertSQL;
             if (liveuserData == null) {
                 cdrInsertSQL = strRadiusAccountInsert.replace("$ACCT_CDR_TABLE_NAME", cdrTable);
                 log.debug(this.PACKET_IDENTIFIER + "IN Insert CDR FROM DB QUERY WITHOUT CREATE_DATE:" + cdrInsertSQL);
-                stmt = new NamedParameterStatement(conn, cdrInsertSQL);
             } else {
                 cdrInsertSQL = strRadiusAccountInsertWithCreateDate.replace("$ACCT_CDR_TABLE_NAME", cdrTable);
                 log.debug(this.PACKET_IDENTIFIER + "IN Insert CDR FROM DB QUERY WITH CREATE_DATE:" + cdrInsertSQL);
-                stmt = new NamedParameterStatement(conn, cdrInsertSQL);
             }
 
-            Iterator<Map.Entry<String, String>> itr = acctFieldMapping.entrySet().iterator();
-            RadiusAttribute radAttrib = null;
+            try (NamedParameterStatement stmt = new NamedParameterStatement(conn, cdrInsertSQL)) {
+                this.bindAttributes(stmt, acctRequest, acctFieldMapping, name -> log.debug(this.PACKET_IDENTIFIER + "IN Insert CDR Attribute not found:" + name));
 
-            while (itr.hasNext()) {
-                radAttrib = null;
-                Map.Entry<String, String> entry =  itr.next();
-
-                try {
-                    radAttrib = acctRequest.getAttribute( entry.getKey());
-                } catch (Exception var35) {
-                    log.debug(this.PACKET_IDENTIFIER + "IN Insert CDR Attribute not found:" +  entry.getKey());
-                }
-
-                if (radAttrib != null) {
-                    stmt.setString( entry.getValue(), radAttrib.getAttributeValue());
+                String attr = acctRequest.getAttributeValue("Acct-Status-Type");
+                if (null == attr || !attr.equalsIgnoreCase("Alive") && !attr.equalsIgnoreCase("Interim-Update") && !attr.equalsIgnoreCase("Stop")) {
+                    stmt.setString("jsontext", null);
                 } else {
-                    stmt.setString( entry.getValue(),  null);
+                    stmt.setString("jsontext", (new ObjectMapper()).configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).writeValueAsString(acctRequest));
                 }
-            }
 
-            String attr = null != acctRequest.getAttributeValue("Acct-Status-Type") ? acctRequest.getAttributeValue("Acct-Status-Type") : null;
-            if (null == attr || !attr.equalsIgnoreCase("Alive") && !attr.equalsIgnoreCase("Interim-Update") && !attr.equalsIgnoreCase("Stop")) {
-                stmt.setString("jsontext",  null);
-            } else {
-                stmt.setString("jsontext", (new ObjectMapper()).configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).writeValueAsString(acctRequest));
-            }
+                if (liveuserData != null) {
+                    stmt.setString("createdate", liveuserData.getLastmodifiedddate().toString());
+                }
 
-            if (liveuserData != null) {
-                stmt.setString("createdate", liveuserData.getLastmodifiedddate().toString());
+                stmt.executeUpdate();
             }
-
-            int var14 = stmt.executeUpdate();
         } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in insertCDR():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    ((ResultSet) rset).close();
-                }
-            } catch (Exception var33) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var32) {
-            }
-
         }
 
         return true;
     }
 
+    /** Binds every mapped request attribute (attribute name -> named parameter) to the statement; absent ones bind null. */
+    @SuppressWarnings("unchecked")
+    private void bindAttributes(NamedParameterStatement stmt, AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping, java.util.function.Consumer<String> onAttributeNotFound) throws SQLException {
+        for (Map.Entry<String, String> entry : ((ConcurrentHashMap<String, String>) acctFieldMapping).entrySet()) {
+            RadiusAttribute radAttrib = null;
+
+            try {
+                radAttrib = acctRequest.getAttribute(entry.getKey());
+            } catch (Exception e) {
+                onAttributeNotFound.accept(entry.getKey());
+            }
+
+            stmt.setString(entry.getValue(), radAttrib != null ? radAttrib.getAttributeValue() : null);
+        }
+    }
+
     private int getDBSession(String strSessionId) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Delete Session,Session Id:" + strSessionId + ",Query:" + strLiveSessionSelect);
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
         int intCount = 0;
 
-        try {
-            conn = DataSource.getConnection();
-            stmt = conn.prepareStatement(strLiveSessionSelect);
+        try (Connection conn = DataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(strLiveSessionSelect)) {
             stmt.setString(1, strSessionId);
 
-            for(rset = stmt.executeQuery(); rset.next(); ++intCount) {
+            try (ResultSet rset = stmt.executeQuery()) {
+                while (rset.next()) {
+                    ++intCount;
+                }
             }
-        } catch (SQLException var23) {
-            SQLException e = var23;
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in getDBSession():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    rset.close();
-                }
-            } catch (Exception var22) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var21) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var20) {
-            }
-
         }
 
         return intCount;
@@ -236,50 +166,11 @@ public class DBAccountingDriver {
     public boolean insertDBSesion(Connection conn, AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Insert Session QUERY" + strLiveSessionInsert + ", Mapping:" + acctFieldMapping.size());
 
-        NamedParameterStatement stmt = null;
-        ResultSet rset = null;
-
-        try {
-            stmt = new NamedParameterStatement(conn, strLiveSessionInsert);
-            Iterator<Map.Entry<String, String>> itr = acctFieldMapping.entrySet().iterator();
-            RadiusAttribute radAttrib = null;
-
-            while (itr.hasNext()) {
-                radAttrib = null;
-                Map.Entry<String, String> entry = (Map.Entry) itr.next();
-
-                try {
-                    radAttrib = acctRequest.getAttribute(entry.getKey());
-                } catch (Exception var27) {
-                    log.info(this.PACKET_IDENTIFIER + "IN Insert Session QUERY Attribute not found:" + entry.getKey());
-                }
-
-                if (radAttrib != null) {
-                    stmt.setString(entry.getValue(), radAttrib.getAttributeValue());
-                } else {
-                    stmt.setString(entry.getValue(), null);
-                }
-            }
-
-            int var31 = stmt.executeUpdate();
-        } catch (SQLException var28) {
-            SQLException e = var28;
+        try (NamedParameterStatement stmt = new NamedParameterStatement(conn, strLiveSessionInsert)) {
+            this.bindAttributes(stmt, acctRequest, acctFieldMapping, name -> log.info(this.PACKET_IDENTIFIER + "IN Insert Session QUERY Attribute not found:" + name));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in insertDBSesion():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    ((ResultSet) rset).close();
-                }
-            } catch (Exception var26) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var25) {
-            }
-
         }
 
         return true;
@@ -296,32 +187,13 @@ public class DBAccountingDriver {
 
     public boolean deleteDBSesion(Connection conn, String strSessionId, String strUsername) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Delete Session,Session Id:" + strSessionId + ",QUERY:" + strLiveSessionDelete);
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
 
-        try {
-            stmt = conn.prepareStatement(strLiveSessionDelete);
+        try (PreparedStatement stmt = conn.prepareStatement(strLiveSessionDelete)) {
             stmt.setString(1, strSessionId);
             stmt.setString(2, strUsername);
-            int var25 = stmt.executeUpdate();
-        } catch (SQLException var23) {
-            SQLException e = var23;
+            stmt.executeUpdate();
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "IN deleteDBSesion:" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    ((ResultSet)rset).close();
-                }
-            } catch (Exception var22) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var21) {
-            }
-
         }
 
         return true;
@@ -339,7 +211,6 @@ public class DBAccountingDriver {
     public boolean updateDBSesion(Connection conn, AccountingRequest acctRequest, ConcurrentHashMap acctFieldMapping) throws Exception {
         log.debug(this.PACKET_IDENTIFIER + "IN Update Session FROM QUERY" + strLiveSessionUpdate);
         long starttime = System.currentTimeMillis();
-        ResultSet rset = null;
 
         try (PreparedStatement stmt = conn.prepareStatement(strLiveSessionUpdate)) {
             RadiusAttribute acctInputOctets = acctRequest.getAttribute("Acct-Input-Octets");
@@ -425,17 +296,8 @@ public class DBAccountingDriver {
             int count = stmt.executeUpdate();
             long queryTime = System.currentTimeMillis() - starttime;
             log.debug(this.PACKET_IDENTIFIER + "IN Update Session FROM QUERY Time:" + queryTime);
-        } catch (SQLException var39) {
-            SQLException e = var39;
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in updateDBSesion():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    ((ResultSet) rset).close();
-                }
-            } catch (Exception var38) {
-            }
-
         }
 
         return true;
@@ -452,8 +314,6 @@ public class DBAccountingDriver {
 
     public ArrayList<CDRData> getCustomerCoAStatus(Connection conn, String custName, Long custPackRelId) {
         log.debug(this.PACKET_IDENTIFIER + "IN getCustomerCoAStatus() FROM DB :" + custName + ",QUERY " + strGetUsedQuotaFromCustPackageRelID);
-        PreparedStatement stmt1 = null;
-        ResultSet rset1 = null;
         double usedQuotaBytes = 0.0;
         double totalQuotaBytes = 0.0;
         double usedQuotaSeconds = 0.0;
@@ -462,58 +322,41 @@ public class DBAccountingDriver {
         boolean bSpeedDowngraded = false;
         boolean isFUPPlan = false;
 
-        try {
-            stmt1 = conn.prepareStatement(strGetUsedQuotaFromCustPackageRelID);
+        try (PreparedStatement stmt1 = conn.prepareStatement(strGetUsedQuotaFromCustPackageRelID)) {
             stmt1.setLong(1, custPackRelId);
-            rset1 = stmt1.executeQuery();
-            if (rset1.next()) {
-                log.debug(this.PACKET_IDENTIFIER + "In getCustomerCoAStatus() Result Found");
-                totalQuotaKB = Double.parseDouble(rset1.getString("totalquotakb"));
-                if (totalQuotaKB != AAAConstant.UNLIMITED_QUOTA) {
-                    totalQuotaBytes = totalQuotaKB * 1024.0;
-                } else {
-                    totalQuotaBytes = AAAConstant.UNLIMITED_QUOTA;
-                }
+            try (ResultSet rset1 = stmt1.executeQuery()) {
+                if (rset1.next()) {
+                    log.debug(this.PACKET_IDENTIFIER + "In getCustomerCoAStatus() Result Found");
+                    totalQuotaKB = Double.parseDouble(rset1.getString("totalquotakb"));
+                    if (totalQuotaKB != AAAConstant.UNLIMITED_QUOTA) {
+                        totalQuotaBytes = totalQuotaKB * 1024.0;
+                    } else {
+                        totalQuotaBytes = AAAConstant.UNLIMITED_QUOTA;
+                    }
 
-                usedQuotaBytes = Double.parseDouble(rset1.getString("usedquotakb")) * 1024.0;
-                totalQuotaSeconds = Double.parseDouble(rset1.getString("timetotalquotasec"));
-                usedQuotaSeconds = Double.parseDouble(rset1.getString("timeusedquotasec"));
-                bSpeedDowngraded = rset1.getBoolean("speeddowngradeflag");
-                if (rset1.getString("datacategory") != null && "FUP".equalsIgnoreCase(rset1.getString("datacategory"))) {
-                    isFUPPlan = true;
+                    usedQuotaBytes = Double.parseDouble(rset1.getString("usedquotakb")) * 1024.0;
+                    totalQuotaSeconds = Double.parseDouble(rset1.getString("timetotalquotasec"));
+                    usedQuotaSeconds = Double.parseDouble(rset1.getString("timeusedquotasec"));
+                    bSpeedDowngraded = rset1.getBoolean("speeddowngradeflag");
+                    if (rset1.getString("datacategory") != null && "FUP".equalsIgnoreCase(rset1.getString("datacategory"))) {
+                        isFUPPlan = true;
+                    }
                 }
             }
         } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in getCustomerCoAStatus():" + e, e);
-        } finally {
-            try {
-                if (rset1 != null) {
-                    rset1.close();
-                }
-            } catch (Exception var38) {
-            }
-
-            try {
-                if (stmt1 != null) {
-                    stmt1.close();
-                }
-            } catch (Exception var37) {
-            }
-
         }
 
         log.info(this.PACKET_IDENTIFIER + "In getCustomerCoAStatus() isFUPPlan:" + isFUPPlan + ",bSpeedDowngraded:" + bSpeedDowngraded);
         if (!bSpeedDowngraded) {
-
             double totalLiveSessionBytes = 0.0;
             double totalLiveSessionslTime = 0.0;
 
             ArrayList<CDRData> cdrList = this.getAllLiveSessions(conn, custName);
-            CDRData cdrData;
-            if (cdrList != null && cdrList.size() > 0) {
-                for(Iterator<CDRData> var23 = cdrList.iterator(); var23.hasNext(); totalLiveSessionslTime += cdrData.getTotalActualTime()) {
-                    cdrData = var23.next();
+            if (cdrList != null) {
+                for (CDRData cdrData : cdrList) {
                     totalLiveSessionBytes += cdrData.getTotalActualBytes();
+                    totalLiveSessionslTime += cdrData.getTotalActualTime();
                 }
             }
 
@@ -544,101 +387,52 @@ public class DBAccountingDriver {
 
     public void populatePlanUsageDetails(Connection conn, Long custPackRelId, customerData custdata) {
         log.debug(this.PACKET_IDENTIFIER + "IN populatePlanUsageDetails() FROM DB :" + custPackRelId + ",QUERY " + strGetUsedQuotaFromCustPackageRelID);
-        PreparedStatement stmt1 = null;
-        ResultSet rset1 = null;
 
-        try {
-            stmt1 = conn.prepareStatement(strGetUsedQuotaFromCustPackageRelID);
+        try (PreparedStatement stmt1 = conn.prepareStatement(strGetUsedQuotaFromCustPackageRelID)) {
             stmt1.setLong(1, custPackRelId);
-            rset1 = stmt1.executeQuery();
-            if (rset1.next()) {
-                custdata.setQuotaunit(rset1.getString("quotaunit"));
-                custdata.setQuotatype(rset1.getString("quotatype"));
-                custdata.setTotalquotakb(rset1.getString("totalquotakb"));
-                custdata.setUsedquotakb(rset1.getString("usedquotakb"));
-                custdata.setTimequotaunit(rset1.getString("timequotaunit"));
-                custdata.setTimetotalquotasec(rset1.getString("timetotalquotasec"));
-                custdata.setTimeusedquotasec(rset1.getString("timeusedquotasec"));
-                String planGroup = rset1.getString("plangroup");
-                String dataCategory = rset1.getString("datacategory");
-                if (dataCategory != null && !"".equalsIgnoreCase(dataCategory) && "FUP".equalsIgnoreCase(dataCategory) && planGroup.equalsIgnoreCase("Renew")) {
-                    custdata.setFUPPlan(true);
+            try (ResultSet rset1 = stmt1.executeQuery()) {
+                if (rset1.next()) {
+                    custdata.setQuotaunit(rset1.getString("quotaunit"));
+                    custdata.setQuotatype(rset1.getString("quotatype"));
+                    custdata.setTotalquotakb(rset1.getString("totalquotakb"));
+                    custdata.setUsedquotakb(rset1.getString("usedquotakb"));
+                    custdata.setTimequotaunit(rset1.getString("timequotaunit"));
+                    custdata.setTimetotalquotasec(rset1.getString("timetotalquotasec"));
+                    custdata.setTimeusedquotasec(rset1.getString("timeusedquotasec"));
+                    String planGroup = rset1.getString("plangroup");
+                    String dataCategory = rset1.getString("datacategory");
+                    custdata.setFUPPlan(dataCategory != null && !"".equalsIgnoreCase(dataCategory) && "FUP".equalsIgnoreCase(dataCategory) && planGroup.equalsIgnoreCase("Renew"));
                 } else {
-                    custdata.setFUPPlan(false);
+                    log.debug(this.PACKET_IDENTIFIER + "IN populatePlanUsageDetails() FROM DB, Detals not fuound for: " + custPackRelId);
                 }
-            } else {
-                log.debug(this.PACKET_IDENTIFIER + "IN populatePlanUsageDetails() FROM DB, Detals not fuound for: " + custPackRelId);
             }
-        } catch (SQLException var24) {
-            SQLException e = var24;
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error IN populatePlanUsageDetails() :" + e, e);
-        } finally {
-            try {
-                if (rset1 != null) {
-                    rset1.close();
-                }
-            } catch (Exception var23) {
-            }
-
-            try {
-                if (stmt1 != null) {
-                    stmt1.close();
-                }
-            } catch (Exception var22) {
-            }
-
         }
-
     }
 
     public CDRData getLiveSessionDetails(String sessionId) {
         log.debug(this.PACKET_IDENTIFIER + "IN getLiveSessionDetails Session Id:" + sessionId + " QUERY " + strLiveUsageFromSessionId);
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
-        double totalActualBytes = 0.0;
-        double totalActualTime = 0.0;
         CDRData cdrData = null;
 
-        try {
-            conn = DataSource.getConnection();
-            stmt = conn.prepareStatement(strLiveUsageFromSessionId);
+        try (Connection conn = DataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(strLiveUsageFromSessionId)) {
             stmt.setString(1, sessionId);
-            rset = stmt.executeQuery();
-            if (rset != null && rset.next()) {
-                cdrData = new CDRData();
-                totalActualBytes = totalActualBytes + Double.parseDouble(rset.getString("AcctInputOctets")) + Double.parseDouble(rset.getString("AcctOutputOctets"));
-                double var10000 = totalActualTime + Double.parseDouble(rset.getString("AcctSessionTime"));
-                cdrData.setNasip(rset.getString("nasipaddress"));
-                cdrData.setSessionid(rset.getString("acctsessionid"));
-                cdrData.setUsername(rset.getString("username"));
-                cdrData.setFramedip(rset.getString("framedipaddress"));
+
+            try (ResultSet rset = stmt.executeQuery()) {
+                if (rset != null && rset.next()) {
+                    cdrData = new CDRData();
+                    // the octet counters and session time are only validated here (a missing or non-numeric value throws); they are not stored
+                    Double.parseDouble(rset.getString("AcctInputOctets"));
+                    Double.parseDouble(rset.getString("AcctOutputOctets"));
+                    Double.parseDouble(rset.getString("AcctSessionTime"));
+                    cdrData.setNasip(rset.getString("nasipaddress"));
+                    cdrData.setSessionid(rset.getString("acctsessionid"));
+                    cdrData.setUsername(rset.getString("username"));
+                    cdrData.setFramedip(rset.getString("framedipaddress"));
+                }
             }
-        } catch (SQLException var27) {
-            SQLException e = var27;
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in getLiveSessionDetails():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    rset.close();
-                }
-            } catch (Exception var26) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var25) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var24) {
-            }
-
         }
 
         return cdrData;
@@ -655,91 +449,72 @@ public class DBAccountingDriver {
 
     public ArrayList<CDRData> getAllLiveSessions(Connection conn, String userName) {
         log.debug(this.PACKET_IDENTIFIER + "IN getAllLiveSessions userName:" + userName + " QUERY " + strGetUsageFromCustName);
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
         double totalActualBytes = 0.0;
         double totalActualTime = 0.0;
-        CDRData cdrData = null;
-        ArrayList<CDRData> cdrList = new ArrayList();
+        ArrayList<CDRData> cdrList = new ArrayList<>();
 
-        try {
-            stmt = conn.prepareStatement(strGetUsageFromCustName);
+        try (PreparedStatement stmt = conn.prepareStatement(strGetUsageFromCustName)) {
             stmt.setString(1, userName);
-            rset = stmt.executeQuery();
-            log.debug(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Result Set is " + rset);
+            try (ResultSet rset = stmt.executeQuery()) {
+                log.debug(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Result Set is " + rset);
 
-            while(rset.next()) {
-                cdrData = new CDRData();
+                // the byte total keeps growing across rows (each CDRData carries the running total), as it always did
+                while (rset.next()) {
+                    CDRData cdrData = new CDRData();
 
-                try {
-                    totalActualBytes += Double.parseDouble(rset.getString("AcctInputOctets"));
-                } catch (Exception var38) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Acct Input Octet not found");
-                }
+                    try {
+                        totalActualBytes += Double.parseDouble(rset.getString("AcctInputOctets"));
+                    } catch (Exception e) {
+                        log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Acct Input Octet not found");
+                    }
 
-                try {
-                    totalActualBytes += Double.parseDouble(rset.getString("AcctOutputOctets"));
-                } catch (Exception var37) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Acct Output Octet not found");
-                }
+                    try {
+                        totalActualBytes += Double.parseDouble(rset.getString("AcctOutputOctets"));
+                    } catch (Exception e) {
+                        log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Acct Output Octet not found");
+                    }
 
-                long uploadGB;
-                try {
-                    if (rset.getString("AcctInputGigawords") != null) {
-                        uploadGB = Long.parseLong(rset.getString("AcctInputGigawords"));
-                        totalActualBytes += (double)(uploadGB * 1024L * 1024L * 1024L);
-                    } else {
+                    try {
+                        if (rset.getString("AcctInputGigawords") != null) {
+                            long inputGigawords = Long.parseLong(rset.getString("AcctInputGigawords"));
+                            totalActualBytes += (double) (inputGigawords * 1024L * 1024L * 1024L);
+                        } else {
+                            log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Input Gigawords not found");
+                        }
+                    } catch (Exception e) {
                         log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Input Gigawords not found");
                     }
-                } catch (Exception var36) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Input Gigawords not found");
-                }
 
-                try {
-                    if (rset.getString("AcctOutputGigawords") != null) {
-                        uploadGB = Long.parseLong(rset.getString("AcctOutputGigawords"));
-                        totalActualBytes += (double)(uploadGB * 1024L * 1024L * 1024L);
-                    } else {
+                    try {
+                        if (rset.getString("AcctOutputGigawords") != null) {
+                            long outputGigawords = Long.parseLong(rset.getString("AcctOutputGigawords"));
+                            totalActualBytes += (double) (outputGigawords * 1024L * 1024L * 1024L);
+                        } else {
+                            log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Output Gigawords not found");
+                        }
+                    } catch (Exception e) {
                         log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Output Gigawords not found");
                     }
-                } catch (Exception var35) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Output Gigawords not found");
-                }
 
-                try {
-                    totalActualTime = Double.parseDouble(rset.getString("AcctSessionTime"));
-                } catch (Exception var34) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Acct Session Time not found");
-                }
+                    try {
+                        totalActualTime = Double.parseDouble(rset.getString("AcctSessionTime"));
+                    } catch (Exception e) {
+                        log.info(this.PACKET_IDENTIFIER + "IN getAllLiveSessions Acct Session Time not found");
+                    }
 
-                cdrData.setNasip(rset.getString("nasipaddress"));
-                cdrData.setSessionid(rset.getString("acctsessionid"));
-                cdrData.setUsername(rset.getString("username"));
-                cdrData.setFramedip(rset.getString("framedipaddress"));
-                cdrData.setTotalActualBytes(totalActualBytes);
-                cdrData.setTotalActualTime(totalActualTime);
-                cdrList.add(cdrData);
+                    cdrData.setNasip(rset.getString("nasipaddress"));
+                    cdrData.setSessionid(rset.getString("acctsessionid"));
+                    cdrData.setUsername(rset.getString("username"));
+                    cdrData.setFramedip(rset.getString("framedipaddress"));
+                    cdrData.setTotalActualBytes(totalActualBytes);
+                    cdrData.setTotalActualTime(totalActualTime);
+                    cdrList.add(cdrData);
+                }
             }
 
             log.debug(this.PACKET_IDENTIFIER + "IN getAllLiveSessions userName:" + userName + ", Total Sessions:" + cdrList.size());
-        } catch (SQLException var39) {
-            SQLException e = var39;
+        } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "Error in getAllLiveSessions():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    rset.close();
-                }
-            } catch (Exception var33) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var32) {
-            }
-
         }
 
         return cdrList;
@@ -761,39 +536,20 @@ public class DBAccountingDriver {
 
         log.debug(this.PACKET_IDENTIFIER + "IN isDuplicateStop() userName:" + userName + ",SessionId:" + SessionId + ",NasIPAddress:" + NasIPAddress + ",sessionTime:" + sessionTime + ",QUERY " + duplicateStopCheckSQL);
 
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
         boolean recordExist = false;
 
-        try {
-            stmt = conn.prepareStatement(duplicateStopCheckSQL);
+        try (PreparedStatement stmt = conn.prepareStatement(duplicateStopCheckSQL)) {
             stmt.setString(1, userName);
             stmt.setString(2, SessionId);
             stmt.setString(3, NasIPAddress);
             stmt.setString(4, sessionTime);
-            rset = stmt.executeQuery();
-            if (rset.next()) {
-                recordExist = true;
+            try (ResultSet rset = stmt.executeQuery()) {
+                recordExist = rset.next();
             }
 
             log.info(this.PACKET_IDENTIFIER + "IN isDuplicateStop():" + recordExist);
         } catch (SQLException e) {
             log.error(this.PACKET_IDENTIFIER + "IN isDuplicateStop():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    rset.close();
-                }
-            } catch (Exception var27) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var26) {
-            }
-
         }
 
         return recordExist;
@@ -809,40 +565,20 @@ public class DBAccountingDriver {
     }
 
     public boolean isDupliacteStart(Connection conn, String userName, String NasIPAddress, String framedip) {
-        log.debug(this.PACKET_IDENTIFIER + "IN isDupliacteStart() userName:{},NasIPAddress:{},framedip:{}", new Object[]{userName, NasIPAddress, framedip, strDuplicateStartCheck});
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
+        log.debug("{} IN isDupliacteStart() userName:{},NasIPAddress:{},framedip:{} QUERY {}", new Object[]{this.PACKET_IDENTIFIER, userName, NasIPAddress, framedip, strDuplicateStartCheck});
         boolean recordExist = false;
 
-        try {
-            stmt = conn.prepareStatement(strDuplicateStartCheck);
+        try (PreparedStatement stmt = conn.prepareStatement(strDuplicateStartCheck)) {
             stmt.setString(1, userName);
             stmt.setString(2, NasIPAddress);
             stmt.setString(3, framedip);
-            rset = stmt.executeQuery();
-            if (rset.next()) {
-                recordExist = true;
+            try (ResultSet rset = stmt.executeQuery()) {
+                recordExist = rset.next();
             }
 
             log.info("{} IN isDuplicateStart():{}", this.PACKET_IDENTIFIER, recordExist);
-        } catch (SQLException var25) {
-            SQLException e = var25;
+        } catch (SQLException e) {
             log.error("{} IN isDuplicateStart():{}", new Object[]{this.PACKET_IDENTIFIER, e, e});
-        } finally {
-            try {
-                if (rset != null) {
-                    rset.close();
-                }
-            } catch (Exception var24) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var23) {
-            }
-
         }
 
         return recordExist;
@@ -850,107 +586,81 @@ public class DBAccountingDriver {
 
     public CDRData getLiveUserSessionDetails(String acctSessionId) {
         log.debug(this.PACKET_IDENTIFIER + "IN getLiveUserDetails acctSessionId:" + acctSessionId + " QUERY " + strLiveSessionSelect);
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rset = null;
         double totalActualBytes = 0.0;
         double totalActualTime = 0.0;
         CDRData cdrData = null;
 
-        try {
-            conn = DataSource.getConnection();
-            stmt = conn.prepareStatement(strLiveSessionSelect);
+        try (Connection conn = DataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(strLiveSessionSelect)) {
             stmt.setString(1, acctSessionId);
-            rset = stmt.executeQuery();
-            log.debug(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Result Set is " + rset);
-            if (rset.next()) {
-                cdrData = new CDRData();
+            try (ResultSet rset = stmt.executeQuery()) {
+                log.debug(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Result Set is " + rset);
+                if (rset.next()) {
+                    cdrData = new CDRData();
 
-                try {
-                    totalActualBytes += Double.parseDouble(rset.getString("AcctInputOctets"));
-                } catch (Exception var41) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Acct Input Octet not found");
-                }
+                    try {
+                        totalActualBytes += Double.parseDouble(rset.getString("AcctInputOctets"));
+                    } catch (Exception e) {
+                        log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Acct Input Octet not found");
+                    }
 
-                try {
-                    totalActualBytes += Double.parseDouble(rset.getString("AcctOutputOctets"));
-                } catch (Exception var40) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Acct Output Octet not found");
-                }
+                    try {
+                        totalActualBytes += Double.parseDouble(rset.getString("AcctOutputOctets"));
+                    } catch (Exception e) {
+                        log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Acct Output Octet not found");
+                    }
 
-                long uploadGB;
-                try {
-                    if (rset.getString("AcctInputGigawords") != null) {
-                        uploadGB = Long.parseLong(rset.getString("AcctInputGigawords"));
-                        totalActualBytes += (double)(uploadGB * 1024L * 1024L * 1024L);
-                    } else {
+                    try {
+                        if (rset.getString("AcctInputGigawords") != null) {
+                            long inputGigawords = Long.parseLong(rset.getString("AcctInputGigawords"));
+                            totalActualBytes += (double) (inputGigawords * 1024L * 1024L * 1024L);
+                        } else {
+                            log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Input Gigawords not found");
+                        }
+                    } catch (Exception e) {
                         log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Input Gigawords not found");
                     }
-                } catch (Exception var39) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Input Gigawords not found");
-                }
 
-                try {
-                    if (rset.getString("AcctOutputGigawords") != null) {
-                        uploadGB = Long.parseLong(rset.getString("AcctOutputGigawords"));
-                        totalActualBytes += (double)(uploadGB * 1024L * 1024L * 1024L);
-                    } else {
+                    try {
+                        if (rset.getString("AcctOutputGigawords") != null) {
+                            long outputGigawords = Long.parseLong(rset.getString("AcctOutputGigawords"));
+                            totalActualBytes += (double) (outputGigawords * 1024L * 1024L * 1024L);
+                        } else {
+                            log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Output Gigawords not found");
+                        }
+                    } catch (Exception e) {
                         log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Output Gigawords not found");
                     }
-                } catch (Exception var38) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Output Gigawords not found");
-                }
 
-                try {
-                    totalActualTime = Double.parseDouble(rset.getString("AcctSessionTime"));
-                } catch (Exception var37) {
-                    log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Acct Session Time not found");
-                }
+                    try {
+                        totalActualTime = Double.parseDouble(rset.getString("AcctSessionTime"));
+                    } catch (Exception e) {
+                        log.info(this.PACKET_IDENTIFIER + "IN getLiveUserDetails Acct Session Time not found");
+                    }
 
-                cdrData.setNasip(rset.getString("nasipaddress"));
-                cdrData.setSessionid(rset.getString("acctsessionid"));
-                cdrData.setUsername(rset.getString("username"));
-                cdrData.setFramedip(rset.getString("framedipaddress"));
-                cdrData.setTotalActualBytes(totalActualBytes);
-                cdrData.setTotalActualTime(totalActualTime);
+                    cdrData.setNasip(rset.getString("nasipaddress"));
+                    cdrData.setSessionid(rset.getString("acctsessionid"));
+                    cdrData.setUsername(rset.getString("username"));
+                    cdrData.setFramedip(rset.getString("framedipaddress"));
+                    cdrData.setTotalActualBytes(totalActualBytes);
+                    cdrData.setTotalActualTime(totalActualTime);
 
-                try {
-                    cdrData.setCreatedate(rset.getString(AAAConstant.CREATE_DATE));
-                } catch (Exception var36) {
-                }
+                    try {
+                        cdrData.setCreatedate(rset.getString(AAAConstant.CREATE_DATE));
+                    } catch (Exception e) {
+                        // the column is optional
+                    }
 
-                try {
-                    cdrData.setLastmodifiedddate(rset.getString(AAAConstant.LAST_MODIFIED_DATE));
-                } catch (Exception var35) {
+                    try {
+                        cdrData.setLastmodifiedddate(rset.getString(AAAConstant.LAST_MODIFIED_DATE));
+                    } catch (Exception e) {
+                        // the column is optional
+                    }
+                } else {
+                    log.debug(this.PACKET_IDENTIFIER + "IN getLiveUserDetails() acctSessionId:" + acctSessionId + ", NOT FOUND");
                 }
-            } else {
-                log.debug(this.PACKET_IDENTIFIER + "IN getLiveUserDetails() acctSessionId:" + acctSessionId + ", NOT FOUND");
             }
-        } catch (Exception var42) {
-            Exception e = var42;
+        } catch (Exception e) {
             log.error(this.PACKET_IDENTIFIER + "Error in getLiveUserDetails():" + e, e);
-        } finally {
-            try {
-                if (rset != null) {
-                    rset.close();
-                }
-            } catch (Exception var34) {
-            }
-
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (Exception var33) {
-            }
-
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception var32) {
-            }
-
         }
 
         return cdrData;

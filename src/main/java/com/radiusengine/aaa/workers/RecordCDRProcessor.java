@@ -41,165 +41,156 @@ public class RecordCDRProcessor implements Runnable {
             try {
                 strUsername = this.acctRequest.getAttribute("User-Name").getAttributeValue();
                 strUsername = strUsername != null ? strUsername.trim() : null;
-            } catch (Exception var41) {
+            } catch (Exception e) {
                 log.info("User-Name Not Found");
             }
 
-            String sessionId = null;
-
-            try {
-                sessionId = this.acctRequest.getAttribute("Acct-Session-Id").getAttributeValue();
-            } catch (Exception var40) {
-                sessionId = null;
-            }
-
-            String nasIP = null;
-
-            try {
-                nasIP = this.acctRequest.getAttribute("NAS-IP-Address").getAttributeValue();
-            } catch (Exception var39) {
-                nasIP = null;
-            }
-
-            String acctSessionTime = null;
-
-            try {
-                acctSessionTime = this.acctRequest.getAttribute("Acct-Session-Time").getAttributeValue();
-            } catch (Exception var38) {
-                acctSessionTime = null;
-            }
+            String sessionId = this.attributeValueOrNull("Acct-Session-Id");
+            String nasIP = this.attributeValueOrNull("NAS-IP-Address");
+            String acctSessionTime = this.attributeValueOrNull("Acct-Session-Time");
 
             try (Connection conn = DataSource.getConnection()) {
-            if (!driver.isDupliacteStop(conn, strUsername, sessionId, nasIP, acctSessionTime)) {
+                if (driver.isDupliacteStop(conn, strUsername, sessionId, nasIP, acctSessionTime)) {
+                    log.info(this.PACKET_IDENTIFIER + "dropping the duplicate Stop");
+                    return;
+                }
 
                 driver.insertCDR(conn, this.acctRequest, this.acctFieldMapping, this.liveSessionData);
 
                 if (this.custPackId != -1L) {
-
-                    log.info(this.PACKET_IDENTIFIER + "[STOP CALLED]");
-                    driver.deleteDBSesion(conn, this.acctRequest.getAttributeValue("Acct-Session-Id"), this.acctRequest.getAttributeValue("User-Name"));
-                    if (this.acctRequest.getAttribute(89) != null) {
-                        strUsername = this.acctRequest.getAttributeValue("Chargeable-User-Identity");
-                    } else {
-                        strUsername = this.acctRequest.getAttribute("User-Name").getAttributeValue();
-                    }
-
-                    strUsername = strUsername != null ? strUsername.trim() : null;
-                    DBAuthenticationDriver dbAuth = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
-                    customerData custRetrunData = dbAuth.getDBCustomer(conn, strUsername);
-                    log.debug(this.PACKET_IDENTIFIER + "custReturnData  :" + custRetrunData);
-                    if (custRetrunData != null) {
-                        DBAccountingDriver dbAcct = new DBAccountingDriver(this.PACKET_IDENTIFIER);
-                        dbAcct.populatePlanUsageDetails(conn, this.custPackId, custRetrunData);
-                        log.debug(this.PACKET_IDENTIFIER + "Customer Data is  :" + custRetrunData.toString());
-                        long download = 0L;
-                        long upload = 0L;
-
-                        try {
-                            download = Long.parseLong(this.acctRequest.getAttribute(42).getAttributeValue());
-                        } catch (Exception ex) {
-                            log.info(this.PACKET_IDENTIFIER + "Download not available");
-                        }
-
-                        try {
-                            upload = Long.parseLong(this.acctRequest.getAttribute(43).getAttributeValue());
-                        } catch (Exception var36) {
-                            log.info(this.PACKET_IDENTIFIER + "Upload not available");
-                        }
-
-                        long uploadGB;
-                        try {
-                            if (this.acctRequest.getAttribute(52) != null) {
-                                uploadGB = Long.parseLong(this.acctRequest.getAttribute(52).getAttributeValue());
-                                download += uploadGB * 4L * 1024L * 1024L * 1024L;
-                            } else {
-                                log.info(this.PACKET_IDENTIFIER + "Input Gigawords not preset");
-                            }
-                        } catch (Exception var35) {
-                            log.info(this.PACKET_IDENTIFIER + "Input Gigawords not preset");
-                        }
-
-                        try {
-                            if (this.acctRequest.getAttribute(52) != null) {
-                                uploadGB = Long.parseLong(this.acctRequest.getAttribute(53).getAttributeValue());
-                                upload += uploadGB * 4L * 1024L * 1024L * 1024L;
-                            } else {
-                                log.info(this.PACKET_IDENTIFIER + "Output Gigawords not preset");
-                            }
-                        } catch (Exception var34) {
-                            log.info(this.PACKET_IDENTIFIER + "Output Gigawords not preset");
-                        }
-
-                        uploadGB = download / 1024L;
-                        long uploadkb = upload / 1024L;
-                        Double totalSessionActualBytes = (double)(download + upload);
-                        long totalSessionActualKb = uploadGB + uploadkb;
-                        long sessiontime = 0L;
-
-                        try {
-                            sessiontime = (long)Integer.parseInt(this.acctRequest.getAttribute(46).getAttributeValue());
-                        } catch (Exception var33) {
-                            log.info(this.PACKET_IDENTIFIER + "Session Time not present");
-                            sessiontime = 0L;
-                        }
-
-                        long totalSessionActualTime = sessiontime;
-                        String strQuotaUnit = custRetrunData.getQuotaunit();
-                        String strQuotaUnitTime = custRetrunData.getTimequotaunit();
-                        if (strQuotaUnit != null) {
-                            if (strQuotaUnit.equalsIgnoreCase("KB")) {
-                                totalSessionActualBytes = totalSessionActualBytes / 1024.0;
-                            }
-
-                            if (strQuotaUnit.equalsIgnoreCase("MB")) {
-                                totalSessionActualBytes = totalSessionActualBytes / 1024.0 / 1024.0;
-                            }
-
-                            if (strQuotaUnit.equalsIgnoreCase("GB")) {
-                                totalSessionActualBytes = totalSessionActualBytes / 1024.0 / 1024.0 / 1024.0;
-                            }
-                        }
-
-                        if (strQuotaUnitTime != null) {
-                            if (strQuotaUnit.equalsIgnoreCase("Min")) {
-                                totalSessionActualTime /= 60L;
-                            }
-
-                            if (strQuotaUnit.equalsIgnoreCase("Hours")) {
-                                totalSessionActualTime = totalSessionActualTime / 60L / 60L;
-                            }
-
-                            if (strQuotaUnit.equalsIgnoreCase("Days")) {
-                                totalSessionActualTime = totalSessionActualTime / 60L / 60L / 24L;
-                            }
-                        }
-
-                        boolean bBWDowndgraded = false;
-                        if (custRetrunData.isFUPPlan() && !Double.valueOf(custRetrunData.getTotalquotakb()).equals(AAAConstant.UNLIMITED_QUOTA)) {
-                            double dTotalQuotaKb = Double.valueOf(custRetrunData.getTotalquotakb());
-                            double dtotalSessionActualKb = Double.valueOf((double)totalSessionActualKb);
-                            double dtotalUsedQuotaKb = Double.valueOf(custRetrunData.getUsedquotakb());
-                            if (dtotalUsedQuotaKb + dtotalSessionActualKb >= dTotalQuotaKb) {
-                                bBWDowndgraded = true;
-                            }
-                        }
-
-                        log.debug(this.PACKET_IDENTIFIER + "custReturnData:" + custRetrunData);
-                        log.debug(this.PACKET_IDENTIFIER + "bBWDowndgraded:" + bBWDowndgraded);
-                        dbAuth.updateQuota(conn, totalSessionActualBytes, totalSessionActualKb, totalSessionActualTime, sessiontime, custRetrunData.getCustid(), strQuotaUnit, strQuotaUnitTime, this.custPackId, bBWDowndgraded);
-                    } else {
-                        log.info(this.PACKET_IDENTIFIER + "OOPS Customer not found...");
-                    }
+                    this.closeSessionAndUpdateQuota(conn, driver);
                 } else {
                     log.debug(this.PACKET_IDENTIFIER + "Not Processing the request as custpackid is null");
                 }
-            } else {
-                log.info(this.PACKET_IDENTIFIER + "dropping the duplicate Stop");
-            }
             }
         } catch (Exception e) {
             log.error(this.PACKET_IDENTIFIER + "Error IN GET RecordCDRProcessor()" + e, e);
         }
+    }
 
+    /** Value of the named attribute, or null when it is missing or cannot be read. */
+    private String attributeValueOrNull(String attributeName) {
+        try {
+            return this.acctRequest.getAttribute(attributeName).getAttributeValue();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Removes the live session and adds this session's usage to the customer's plan quota. */
+    private void closeSessionAndUpdateQuota(Connection conn, DBAccountingDriver driver) throws Exception {
+        log.info(this.PACKET_IDENTIFIER + "[STOP CALLED]");
+        driver.deleteDBSesion(conn, this.acctRequest.getAttributeValue("Acct-Session-Id"), this.acctRequest.getAttributeValue("User-Name"));
+
+        String strUsername;
+        if (this.acctRequest.getAttribute(89) != null) {
+            strUsername = this.acctRequest.getAttributeValue("Chargeable-User-Identity");
+        } else {
+            strUsername = this.acctRequest.getAttribute("User-Name").getAttributeValue();
+        }
+
+        strUsername = strUsername != null ? strUsername.trim() : null;
+        DBAuthenticationDriver dbAuth = new DBAuthenticationDriver(this.PACKET_IDENTIFIER);
+        customerData custRetrunData = dbAuth.getDBCustomer(conn, strUsername);
+        log.debug(this.PACKET_IDENTIFIER + "custReturnData  :" + custRetrunData);
+        if (custRetrunData == null) {
+            log.info(this.PACKET_IDENTIFIER + "OOPS Customer not found...");
+            return;
+        }
+
+        DBAccountingDriver dbAcct = new DBAccountingDriver(this.PACKET_IDENTIFIER);
+        dbAcct.populatePlanUsageDetails(conn, this.custPackId, custRetrunData);
+        log.debug(this.PACKET_IDENTIFIER + "Customer Data is  :" + custRetrunData.toString());
+
+        long download = this.readCounter(42, "Download not available");
+        long upload = this.readCounter(43, "Upload not available");
+        download += this.gigawordsAsBytes(52, 52, "Input Gigawords not preset");
+        // the Output-Gigawords value (53) is only read when attribute 52 is present, as it always was
+        upload += this.gigawordsAsBytes(52, 53, "Output Gigawords not preset");
+
+        long downloadKb = download / 1024L;
+        long uploadKb = upload / 1024L;
+        Double totalSessionActualBytes = (double) (download + upload);
+        long totalSessionActualKb = downloadKb + uploadKb;
+        long sessiontime = 0L;
+
+        try {
+            sessiontime = (long) Integer.parseInt(this.acctRequest.getAttribute(46).getAttributeValue());
+        } catch (Exception e) {
+            log.info(this.PACKET_IDENTIFIER + "Session Time not present");
+            sessiontime = 0L;
+        }
+
+        long totalSessionActualTime = sessiontime;
+        String strQuotaUnit = custRetrunData.getQuotaunit();
+        String strQuotaUnitTime = custRetrunData.getTimequotaunit();
+        if (strQuotaUnit != null) {
+            if (strQuotaUnit.equalsIgnoreCase("KB")) {
+                totalSessionActualBytes = totalSessionActualBytes / 1024.0;
+            }
+
+            if (strQuotaUnit.equalsIgnoreCase("MB")) {
+                totalSessionActualBytes = totalSessionActualBytes / 1024.0 / 1024.0;
+            }
+
+            if (strQuotaUnit.equalsIgnoreCase("GB")) {
+                totalSessionActualBytes = totalSessionActualBytes / 1024.0 / 1024.0 / 1024.0;
+            }
+        }
+
+        if (strQuotaUnitTime != null) {
+            // the time unit is tested through strQuotaUnit (not strQuotaUnitTime) and throws when that is null, as before
+            if (strQuotaUnit.equalsIgnoreCase("Min")) {
+                totalSessionActualTime /= 60L;
+            }
+
+            if (strQuotaUnit.equalsIgnoreCase("Hours")) {
+                totalSessionActualTime = totalSessionActualTime / 60L / 60L;
+            }
+
+            if (strQuotaUnit.equalsIgnoreCase("Days")) {
+                totalSessionActualTime = totalSessionActualTime / 60L / 60L / 24L;
+            }
+        }
+
+        boolean bBWDowndgraded = false;
+        if (custRetrunData.isFUPPlan() && !Double.valueOf(custRetrunData.getTotalquotakb()).equals(AAAConstant.UNLIMITED_QUOTA)) {
+            double dTotalQuotaKb = Double.valueOf(custRetrunData.getTotalquotakb());
+            double dtotalSessionActualKb = Double.valueOf((double) totalSessionActualKb);
+            double dtotalUsedQuotaKb = Double.valueOf(custRetrunData.getUsedquotakb());
+            if (dtotalUsedQuotaKb + dtotalSessionActualKb >= dTotalQuotaKb) {
+                bBWDowndgraded = true;
+            }
+        }
+
+        log.debug(this.PACKET_IDENTIFIER + "custReturnData:" + custRetrunData);
+        log.debug(this.PACKET_IDENTIFIER + "bBWDowndgraded:" + bBWDowndgraded);
+        dbAuth.updateQuota(conn, totalSessionActualBytes, totalSessionActualKb, totalSessionActualTime, sessiontime, custRetrunData.getCustid(), strQuotaUnit, strQuotaUnitTime, this.custPackId, bBWDowndgraded);
+    }
+
+    /** Octet counter (42 = input, 43 = output); 0 when the packet does not carry it. */
+    private long readCounter(int attributeType, String notAvailableMessage) {
+        try {
+            return Long.parseLong(this.acctRequest.getAttribute(attributeType).getAttributeValue());
+        } catch (Exception e) {
+            log.info(this.PACKET_IDENTIFIER + notAvailableMessage);
+            return 0L;
+        }
+    }
+
+    /** Gigaword counter converted to bytes (one gigaword = 4 GiB); 0 when it is absent. */
+    private long gigawordsAsBytes(int presenceCheckType, int valueType, String notPresentMessage) {
+        try {
+            if (this.acctRequest.getAttribute(presenceCheckType) != null) {
+                long gigawords = Long.parseLong(this.acctRequest.getAttribute(valueType).getAttributeValue());
+                return gigawords * 4L * 1024L * 1024L * 1024L;
+            }
+
+            log.info(this.PACKET_IDENTIFIER + notPresentMessage);
+        } catch (Exception e) {
+            log.info(this.PACKET_IDENTIFIER + notPresentMessage);
+        }
+
+        return 0L;
     }
 }

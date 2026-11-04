@@ -23,6 +23,9 @@ public class DataSource {
         config.addDataSourceProperty("prepStmtCacheSqlLimit", prepStmtCacheSqlLimit);
         config.setMinimumIdle(minIdlePool);
         config.setMaximumPoolSize(maxPoolSize);
+        config.setMaxLifetime(300000L);
+        config.setConnectionTimeout(5000L);
+        config.setValidationTimeout(3000L);
         ds = new HikariDataSource(config);
     }
 

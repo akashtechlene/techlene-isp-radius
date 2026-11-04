@@ -24,7 +24,7 @@ public class CustAttribWorker implements Runnable {
 
     public void run() {
         try {
-            this.logger.info("{} Started..." + this.PACKET_IDENTIFIER);
+            this.logger.info("{} Started...", this.PACKET_IDENTIFIER);
             if (this.customerAttribute != null) {
                 DBAuthenticationDriver driver = new DBAuthenticationDriver();
                 if (this.customerAttribute.getCustattrid() > 0) {
@@ -33,12 +33,11 @@ public class CustAttribWorker implements Runnable {
                     driver.insertCustomerArribute(this.customerAttribute);
                 }
             }
-        } catch (Exception var3) {
-            Exception e = var3;
+        } catch (Exception e) {
             this.logger.error("{} ERROR in {}:{} {}", new Object[]{this.PACKET_IDENTIFIER, this.MODULE, e.getMessage(), e});
         }
 
         long endTime = System.currentTimeMillis();
-        this.logger.info("{} Ended. Time to Final Respond:{}", endTime - this.lngStartTime);
+        this.logger.info("{} Ended. Time to Final Respond:{}", this.PACKET_IDENTIFIER, endTime - this.lngStartTime);
     }
 }
